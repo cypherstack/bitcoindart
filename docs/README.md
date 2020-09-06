@@ -6,25 +6,27 @@
 
 下面是比特币地址的例子：
 - 普通地址：
-1Du1qyAdxpwiAD128kWrg9c3ibEFFDZrFq
+1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64
 
 - 隔离见证（兼容）地址：
 33F1CKBVZDDWugFxiaibh9FLtAG6vLyDXk
 
 - 隔离见证（原生）地址：
-bc1qatu65e27zy4ksvkt9tp65pnrra0g7nk4zclqph
+bc1qnf4kpa62dwhpwm0stsas5yv0skatt3v9s040p8
 
 比特币地址可由公钥经过单向的加密哈希算法得到。由公钥生成比特币地址时使用的算法是Secure Hash Algorithm (SHA)和the RACE Integ rity Primitives Evaluation Message Digest (RIPEMD)，具体地说是SHA256和RIPEMD160。
 
 下面介绍各种类型比特币地址的生成原理。
 
 ### 普通地址
+#### 步骤1 哈希计算
 以公钥 K 为输入，计算其SHA256哈希值，并以此结果计算RIPEMD160 哈希值，得到一个长度为160位（20字节）的数字：
 
 A = RIPEMD160(SHA256(K))
 
 公式中，K是公钥，A是生成的比特币地址。
 
+#### 步骤2 地址编码
 通常用户见到的比特币地址是经过“Base58Check”编码的，这种编码使用了58个字符（一种Base58数字系统）和校验码，提高了可读性、避免歧义并有效防止了在地址转录和输入中产生的错误。
 
 为了将数据（数字）转换成Base58Check格式，首先我们要对数据添加一个称作“版本字节”的前缀，这个前缀用来识别编码的数据的类型。比特币普通地址的前缀是`0（十六进制是0x00）`
@@ -61,8 +63,28 @@ payload.setRange(1, payload.length, hash);
 // print(payload);
 // [0, 154, 107, 96, 247, 74, 107, 174, 23, 109, 240, 92, 59, 10, 17, 143, 133, 186, 181, 197, 133]
 
-// Base58Check编码
+// Base58Check 编码
 final address = bs58check.encode(payload);
 // print(address);
 // 1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64
+```
+
+### 隔离见证（原生）地址
+#### 步骤1 哈希计算
+该步骤与普通地址一样，即：A = RIPEMD160(SHA256(K))，其中K是公钥，A是生成的比特币地。址。
+
+#### 步骤2 地址编码
+隔离见证地址使用的是 [Bech32](./bech32.md) 编码方式。Bech32编码实际上由两部分组成：一部分是前缀，被称为HRP（Human Readable Part，用户可读部分），另一部分是特殊的Base32编码，使用字母表`qpzry9x8gf2tvdw0s3jn54khce6mua7l`。比特币隔离见证地址Bech32编码使用的前缀是`bc`，版本号是`0`。
+
+隔离见证地址的生成代码
+```dart
+// 导入 Segwit
+import 'package:bech32/bech32.dart';
+
+// 获取地址 hash 
+
+// Bech32 编码
+final address = segwit.encode(Segwit('bc', 0, hash));
+// print(address);
+// bc1qnf4kpa62dwhpwm0stsas5yv0skatt3v9s040p8
 ```
