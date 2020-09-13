@@ -47,6 +47,20 @@ createAddressInOriginalWay() {
   print(address);
 }
 
+createAddress(Function rng) {
+  final keyPair = ECPair.makeRandom(rng: rng);
+  final wif = keyPair.toWIF();
+  final address =
+      new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey)).data.address;
+  print(wif);
+  print(address);
+
+  return {
+    'wif': wif,
+    'address': address,
+  };
+}
+
 // 创建交易
 createTransaction() {
   final alice =
@@ -60,6 +74,7 @@ createTransaction() {
   txb.addInput(
       '7d067b4a697a09d2c3cff7d4d9506c9955e93bff41bf82d439da7d030382bc3e',
       0); // Alice's previous transaction output, has 15000 satoshis
+  txb.addOutput('1KRMKfeZcmosxALVYESdPNez1AP1mEtywp', 80000);
   txb.addOutput('1KRMKfeZcmosxALVYESdPNez1AP1mEtywp', 80000);
   // (in)90000 - (out)80000 = (fee)10000, this is the miner fee
 
@@ -102,7 +117,8 @@ createTestnetTransaction(String txHash) {
   txb.setVersion(1);
   txb.addInput(
       txHash, 0); // Keybag's previous transaction output, has 15000 satoshis
-  txb.addOutput('mubSzQNtZfDj1YdNP6pNDuZy6zs6GDn61L', 1230);
+  txb.addOutput('moTUMqKxSXrGeF8ktYcawLLVr6Mg46TQdQ', 20000000);
+  txb.addOutput('msXCejAWLAPZym8JK2516x7gbu3giKWUP3', 10000000 - 150);
   // (in)90000 - (out)80000 = (fee)10000, this is the miner fee
 
   txb.sign(vin: 0, keyPair: keybag);
@@ -113,13 +129,18 @@ createTestnetTransaction(String txHash) {
 main() {
   // createAddressInOriginalWay();
 
+  // createAddress(rng);
+
   // createTestnetAddress(rng);
+  // wif: cRgnQe9MUu1JznntrLaoQpB476M8PURvXVQB5R2eqms5tXnzNsrr
+  // address: mubSzQNtZfDj1YdNP6pNDuZy6zs6GDn61L
 
   // createTestnetAddress(rngKeybag);
   // wif: cRgnQe9MUu1JznntrLaoQpB476M8PURvXVQB5MHjaqzhL42Cse1T
   // address: msXCejAWLAPZym8JK2516x7gbu3giKWUP3
 
-  // createTestnetTransaction('ebfff962a44bed1387ac62d40f6636c11e05be7038eb7a96ffe410b1d13100bb');
+  createTestnetTransaction(
+      'f752b9c61ed56d61049bf24317c683762cdf66ef91f9562d234cca18b9503aee');
 
-  createTransaction();
+  // createTransaction();
 }
