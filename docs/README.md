@@ -4,7 +4,7 @@
 ## 比特币地址
 比特币地址是一个由数字和字母组成的字符串，比特币地址类型分为普通地址和隔离见证（兼容/原生）地址。
 
-下面是比特币地址的例子：
+下面是比特币地址的示例：
 - 普通地址：
 1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64
 
@@ -68,6 +68,9 @@ final address = bs58check.encode(payload);
 // print(address);
 // 1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64
 ```
+
+### 隔离见证（兼容）地址
+
 
 ### 隔离见证（原生）地址
 #### 步骤1 哈希计算
