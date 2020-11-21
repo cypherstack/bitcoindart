@@ -84,3 +84,18 @@ pub run test
 - [Base58 Check](https://github.com/anicdh/bs58check-dart) - Base58 check encoding/decoding
 
 ## LICENSE [MIT](LICENSE)
+
+## Script
+```
+// Analyze code
+flutter analyze
+
+// Format code
+dartfmt -w lib example
+
+// Publish validation
+pub publish --dry-run --verbose
+
+// Publish
+flutter packages pub publish --verbose --server https://pub.dartlang.org
+```
