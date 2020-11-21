@@ -74,7 +74,7 @@ final address = bs58check.encode(payload);
 
 ### 隔离见证（原生）地址
 #### 步骤1 哈希计算
-该步骤与普通地址一样，即：A = RIPEMD160(SHA256(K))，其中K是公钥，A是生成的比特币地。址。
+该步骤与普通地址一样，即：A = RIPEMD160(SHA256(K))，其中K是公钥，A是生成的比特币地址。
 
 #### 步骤2 地址编码
 隔离见证地址使用的是 [Bech32](./bech32.md) 编码方式。Bech32编码实际上由两部分组成：一部分是前缀，被称为HRP（Human Readable Part，用户可读部分），另一部分是特殊的Base32编码，使用字母表`qpzry9x8gf2tvdw0s3jn54khce6mua7l`。比特币隔离见证地址Bech32编码使用的前缀是`bc`，版本号是`0`。
