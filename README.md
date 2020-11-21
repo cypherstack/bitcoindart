@@ -1,4 +1,4 @@
-<a href="https://pub.dartlang.org/packages/bitcoin_flutter"><img alt="pub version" src="https://img.shields.io/pub/v/bitcoin_flutter.svg?style=flat-square"></a>
+<a href="https://pub.dartlang.org/packages/bitcoindart"><img alt="pub version" src="https://img.shields.io/pub/v/bitcoindart.svg?style=flat-square"></a>
 
 # bitcoindart
 
@@ -14,12 +14,12 @@ Otherwise, pull requests are appreciated.
 
 ## Installing
 
-[Flutter Packages](https://pub.dartlang.org/packages/bitcoin_flutter#-installing-tab-)
+[Flutter Packages](https://pub.dartlang.org/packages/bitcoindart#-installing-tab-)
 
 ## Examples
 
 ```dart
-import 'package:bitcoin_flutter/bitcoin_flutter.dart';
+import 'package:bitcoindart/bitcoindart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 
 main() {

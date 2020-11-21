@@ -8,11 +8,11 @@
 - 普通地址：
 1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64
 
-- 隔离见证（兼容）地址：
-33F1CKBVZDDWugFxiaibh9FLtAG6vLyDXk
-
 - 隔离见证（原生）地址：
 bc1qnf4kpa62dwhpwm0stsas5yv0skatt3v9s040p8
+
+- 隔离见证（兼容）地址：
+33F1CKBVZDDWugFxiaibh9FLtAG6vLyDXk
 
 比特币地址可由公钥经过单向的加密哈希算法得到。由公钥生成比特币地址时使用的算法是Secure Hash Algorithm (SHA)和the RACE Integ rity Primitives Evaluation Message Digest (RIPEMD)，具体地说是SHA256和RIPEMD160。
 
@@ -69,9 +69,6 @@ final address = bs58check.encode(payload);
 // 1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64
 ```
 
-### 隔离见证（兼容）地址
-
-
 ### 隔离见证（原生）地址
 #### 步骤1 哈希计算
 该步骤与普通地址一样，即：A = RIPEMD160(SHA256(K))，其中K是公钥，A是生成的比特币地址。
@@ -91,3 +88,10 @@ final address = segwit.encode(Segwit('bc', 0, hash));
 // print(address);
 // bc1qnf4kpa62dwhpwm0stsas5yv0skatt3v9s040p8
 ```
+
+### 隔离见证（兼容）地址
+> P2SH地址，是采用Base58Check对脚本的20个字节哈希值进行编码，就像比特币地址是公钥20字节哈希的Base58Check编码一样。由于P2SH地址采用5作为前缀，这导致基于Base58编码的地址以“3”开头。
+
+## 附录
+### 隔离见证
+隔离见证（segwit）是指把特定输出的签名或解锁脚本隔离开。“单独的scriptSig”或“单独的签名”就是它最简单的形式。隔离见证是对比特币的一种架构更改，旨在将见证数据从交易的scriptSig（解锁脚本）字段移动到伴随交易的独立的见证数据结构中。客户端要求的交易数据可以包括见证数据，也可以不包括。

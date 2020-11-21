@@ -1,3 +1,6 @@
+## 2.1.0
+- Release bitcoindart package
+
 ## 2.0.1
 - Add payments/index.dart to lib exports
 

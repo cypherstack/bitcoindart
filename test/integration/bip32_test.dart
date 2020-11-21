@@ -1,6 +1,6 @@
-import 'package:bitcoin_flutter/src/models/networks.dart';
-import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
-import 'package:bitcoin_flutter/src/payments/p2pkh.dart';
+import 'package:bitcoindart/src/models/networks.dart';
+import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
+import 'package:bitcoindart/src/payments/p2pkh.dart';
 import 'package:test/test.dart';
 import 'package:hex/hex.dart';
 import 'package:bip39/bip39.dart' as bip39;
