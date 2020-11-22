@@ -1,6 +1,7 @@
 import '../../lib/src/models/networks.dart' as NETWORKS;
 import '../../lib/src/ecpair.dart' show ECPair;
 import '../../lib/src/payments/index.dart' show PaymentData;
+import '../../lib/src/payments/p2sh.dart' show P2SH;
 import '../../lib/src/payments/p2pkh.dart' show P2PKH, P2PKHData;
 import '../../lib/src/payments/p2wpkh.dart' show P2WPKH;
 import 'package:pointycastle/digests/sha256.dart';
@@ -89,6 +90,18 @@ main() {
           .data
           .address;
       expect(address, 'tb1qgmp0h7lvexdxx9y05pmdukx09xcteu9sx2h4ya');
+    });
+
+    test('can generate a SegWit address (via P2SH)', () {
+      final keyPair = ECPair.fromWIF(
+          'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn');
+      final address = P2SH(
+              redeem:
+                  new P2WPKH(data: new PaymentData(pubkey: keyPair.publicKey))
+                      .data)
+          .data
+          .address;
+      expect(address, '3JvL6Ymt8MVWiCNHC7oWU6nLeHNJKLZGLN');
     });
   });
 }

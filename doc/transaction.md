@@ -177,7 +177,7 @@ f752b9c61ed56d61049bf24317c683762cdf66ef91f9562d234cca18b9503aee
 ### P2SH（Pay-to-Script-Hash）
 示例：
 ```
-// Redeem Script
+// Redeem Script（以多重签名脚本为例子）
 M <Public Key 1> <Public Key 2> ... <Public Key N> N CHECKMULTISIG
 
 // Locking Script
@@ -208,6 +208,17 @@ P2WPKH中的公钥哈希值是20字节。
 P2WSH中的脚本哈希值是32字节，通过采用SHA256对脚本运算得到。
 
 ### P2SH(P2WPKH)  
+示例：
+```
+// Redeem Script
+<Witness Version> <Public Key Hash>
+
+// Locking Script
+HASH160 <20-Byte Hash of Redeem Script> EQUAL
+
+// Unlocking Script
+<Redeem Script>
+```
 
 ### P2SH(P2WSH)
 
