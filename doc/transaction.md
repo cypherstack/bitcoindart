@@ -166,13 +166,19 @@ f752b9c61ed56d61049bf24317c683762cdf66ef91f9562d234cca18b9503aee
 <Signature> <Public Key> OP_DUP OP_HASH160 <Public Key Hash> OP_EQUALVERIFY OP_CHECKSIG
 ```
 
-### 多重签名
+### P2MS（Pay-to-Multiple-Signatures）多重签名
 示例：
 ```
 0 <Signature 1> <Signature 2> ... <Signature M> M <Public Key 1> <Public Key 2> ... <Public Key N> N CHECKMULTISIG
 ```
 
 标准多重签名脚本限制在最多15个列出的公钥。
+
+### P2PK（Pay-to-Public-Key）
+示例：
+```
+<Signature> <Public Key> OP_CHECKSIG
+```
 
 ### P2SH（Pay-to-Script-Hash）
 示例：
