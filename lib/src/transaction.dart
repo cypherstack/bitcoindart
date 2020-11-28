@@ -4,6 +4,7 @@ import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart' show P2PKH;
 import 'payments/p2pk.dart' show P2PK;
 import 'payments/p2wpkh.dart' show P2WPKH;
+import 'payments/p2sh.dart' show P2SH;
 import 'crypto.dart' as bcrypto;
 import 'classify.dart';
 import 'utils/check_types.dart';
@@ -530,11 +531,17 @@ class Input {
   Uint8List script;
   Uint8List signScript;
   Uint8List prevOutScript;
+  Uint8List redeemScript;
+  Uint8List witnessScript;
+  String signType;
   String prevOutType;
+  String redeemScriptType;
+  String witnessScriptType;
   bool hasWitness;
   List<Uint8List> pubkeys;
   List<Uint8List> signatures;
   List<Uint8List> witness;
+  int maxSignatures;
 
   Input(
       {this.hash,
@@ -543,10 +550,16 @@ class Input {
       this.sequence,
       this.value,
       this.prevOutScript,
+      this.redeemScript,
+      this.witnessScript,
       this.pubkeys,
       this.signatures,
       this.witness,
-      this.prevOutType}) {
+      this.signType,
+      this.prevOutType,
+      this.redeemScriptType,
+      this.witnessScriptType,
+      this.maxSignatures}) {
     this.hasWitness = false; // Default value
     if (this.hash != null && !isHash256bit(this.hash))
       throw new ArgumentError('Invalid input hash');
@@ -560,8 +573,11 @@ class Input {
 
   factory Input.expandInput(Uint8List scriptSig, List<Uint8List> witness,
       [String type, Uint8List scriptPubKey]) {
+    if (scriptSig.length == 0 && witness.length == 0) {
+      return new Input();
+    }
     if (type == null || type == '') {
-      var ssType = classifyInput(scriptSig);
+      var ssType = classifyInput(scriptSig, true);
       var wsType = classifyWitness(witness);
       if (ssType == SCRIPT_TYPES['NONSTANDARD']) ssType = null;
       if (wsType == SCRIPT_TYPES['NONSTANDARD']) wsType = null;
@@ -574,20 +590,52 @@ class Input {
           prevOutType: SCRIPT_TYPES['P2WPKH'],
           pubkeys: [p2wpkh.data.pubkey],
           signatures: [p2wpkh.data.signature]);
-    } else if (type == SCRIPT_TYPES['P2PKH']) {
+    }
+    if (type == SCRIPT_TYPES['P2PKH']) {
       P2PKH p2pkh = new P2PKH(data: new PaymentData(input: scriptSig));
       return new Input(
           prevOutScript: p2pkh.data.output,
           prevOutType: SCRIPT_TYPES['P2PKH'],
           pubkeys: [p2pkh.data.pubkey],
           signatures: [p2pkh.data.signature]);
-    } else if (type == SCRIPT_TYPES['P2PK']) {
+    }
+    if (type == SCRIPT_TYPES['P2PK']) {
       P2PK p2pk = new P2PK(data: new PaymentData(input: scriptSig));
       return new Input(
           prevOutType: SCRIPT_TYPES['P2PK'],
           pubkeys: [],
           signatures: [p2pk.data.signature]);
     }
+    if (type == SCRIPT_TYPES['P2MS']) {
+      // TODO
+    }
+    if (type == SCRIPT_TYPES['P2SH']) {
+      P2SH p2sh =
+          new P2SH(data: new PaymentData(input: scriptSig, witness: witness));
+      final output = p2sh.data.output;
+      final redeem = p2sh.data.redeem;
+      final outputType = classifyOutput(redeem.output);
+      final expanded = Input.expandInput(
+        redeem.input,
+        redeem.witness,
+        outputType,
+        redeem.output,
+      );
+      if (expanded.prevOutType == null) return new Input();
+      return new Input(
+          prevOutScript: output,
+          prevOutType: SCRIPT_TYPES['P2SH'],
+          redeemScript: redeem.output,
+          redeemScriptType: expanded.prevOutType,
+          witnessScript: expanded.witnessScript,
+          witnessScriptType: expanded.witnessScriptType,
+          pubkeys: expanded.pubkeys,
+          signatures: expanded.signatures);
+    }
+    return new Input(
+      prevOutType: SCRIPT_TYPES['NONSTANDARD'],
+      prevOutScript: scriptSig,
+    );
   }
 
   factory Input.clone(Input input) {
@@ -613,23 +661,46 @@ class Input {
 
   @override
   String toString() {
-    return 'Input{hash: $hash, index: $index, sequence: $sequence, value: $value, script: $script, signScript: $signScript, prevOutScript: $prevOutScript, pubkeys: $pubkeys, signatures: $signatures, witness: $witness, prevOutType: $prevOutType}';
+    return '''
+    Input{
+      hash: $hash,
+      index: $index,
+      sequence: $sequence,
+      value: $value,
+      script: $script,
+      signScript: $signScript,
+      prevOutScript: $prevOutScript,
+      redeemScript: $redeemScript,
+      witnessScript: $witnessScript,
+      pubkeys: $pubkeys,
+      signatures: $signatures,
+      witness: $witness,
+      signType: $signType,
+      prevOutType: $prevOutType,
+      redeemScriptType: $redeemScriptType,
+      witnessScriptType: $witnessScriptType,
+    }
+    ''';
   }
 }
 
 class Output {
+  String type;
   Uint8List script;
   int value;
   Uint8List valueBuffer;
   List<Uint8List> pubkeys;
   List<Uint8List> signatures;
+  int maxSignatures;
 
   Output(
-      {this.script,
+      {this.type,
+      this.script,
       this.value,
       this.pubkeys,
       this.signatures,
-      this.valueBuffer}) {
+      this.valueBuffer,
+      this.maxSignatures}) {
     if (value != null && !isShatoshi(value))
       throw ArgumentError('Invalid ouput value');
   }
@@ -641,19 +712,22 @@ class Output {
       Uint8List wpkh1 =
           new P2WPKH(data: new PaymentData(output: script)).data.hash;
       Uint8List wpkh2 = bcrypto.hash160(ourPubKey);
-      if (wpkh1 != wpkh2) throw ArgumentError('Hash mismatch!');
-      return new Output(pubkeys: [ourPubKey], signatures: [null]);
+      if (wpkh1.toString() != wpkh2.toString())
+        throw ArgumentError('Hash mismatch!');
+      return new Output(type: type, pubkeys: [ourPubKey], signatures: [null]);
     } else if (type == SCRIPT_TYPES['P2PKH']) {
       Uint8List pkh1 =
           new P2PKH(data: new PaymentData(output: script)).data.hash;
       Uint8List pkh2 = bcrypto.hash160(ourPubKey);
-      if (pkh1 != pkh2) throw ArgumentError('Hash mismatch!');
-      return new Output(pubkeys: [ourPubKey], signatures: [null]);
+      if (pkh1.toString() != pkh2.toString())
+        throw ArgumentError('Hash mismatch!');
+      return new Output(type: type, pubkeys: [ourPubKey], signatures: [null]);
     }
   }
 
   factory Output.clone(Output output) {
     return new Output(
+      type: output.type,
       script: output.script != null ? Uint8List.fromList(output.script) : null,
       value: output.value,
       valueBuffer: output.valueBuffer != null
@@ -672,7 +746,16 @@ class Output {
 
   @override
   String toString() {
-    return 'Output{script: $script, value: $value, valueBuffer: $valueBuffer, pubkeys: $pubkeys, signatures: $signatures}';
+    return '''
+      Output{
+        type: $type,
+        script: $script,
+        value: $value,
+        valueBuffer: $valueBuffer, 
+        pubkeys: $pubkeys, 
+        signatures: $signatures
+      }
+    ''';
   }
 }
 

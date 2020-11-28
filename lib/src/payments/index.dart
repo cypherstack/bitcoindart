@@ -8,6 +8,7 @@ class PaymentData {
   Uint8List pubkey;
   Uint8List input;
   List<Uint8List> witness;
+  PaymentData redeem;
 
   PaymentData(
       {this.address,
@@ -16,7 +17,8 @@ class PaymentData {
       this.pubkey,
       this.input,
       this.signature,
-      this.witness});
+      this.witness,
+      this.redeem});
 
   @override
   String toString() {

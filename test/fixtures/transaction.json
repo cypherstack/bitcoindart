@@ -267,6 +267,33 @@
       "weight": 768
     },
     {
+      "description": "P2SH P2PKH",
+      "id": "0b8fa64f89b95666a23e424fe94e9114806726be9753e140dbd74c0d673c9593",
+      "hash": "93953c670d4cd7db40e15397be26678014914ee94f423ea26656b9894fa68f0b",
+      "hex": "01000000014b9ffc17c3cce03ee66980bf32d36aaa13462980c3af9d9d29ec6b97ab1c91650000000084473044022003d738d855d0c54a419ac62ebe1a1c0bf2dc6993c9585adb9a8666736658107002204d57ff62ee7efae6df73430bba62494faeba8c125a4abcf2488757a4f8877dd50121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b1976a914851a33a5ef0d4279bd5854949174e2c65b1d450088acffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+      "whex": "",
+      "raw": {
+        "version": 1,
+        "ins": [
+          {
+            "hash": "4b9ffc17c3cce03ee66980bf32d36aaa13462980c3af9d9d29ec6b97ab1c9165",
+            "index": 0,
+            "script": "3044022003d738d855d0c54a419ac62ebe1a1c0bf2dc6993c9585adb9a8666736658107002204d57ff62ee7efae6df73430bba62494faeba8c125a4abcf2488757a4f8877dd501 038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b 76a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac"
+          }
+        ],
+        "outs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      "coinbase": false,
+      "virtualSize": 217,
+      "weight": 868
+    },
+    {
       "description": "P2WPKH",
       "id": "10bbdf7e9301bc21f1da8684f25fd66bc1314904c30da25a8ebf967c58c89269",
       "hash": "6992c8587c96bf8e5aa20dc3044931c16bd65ff28486daf121bc01937edfbb10",

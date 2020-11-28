@@ -96,9 +96,10 @@ main() {
       final keyPair = ECPair.fromWIF(
           'KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn');
       final address = P2SH(
-              redeem:
-                  new P2WPKH(data: new PaymentData(pubkey: keyPair.publicKey))
-                      .data)
+              data: new PaymentData(
+                  redeem: new P2WPKH(
+                          data: new PaymentData(pubkey: keyPair.publicKey))
+                      .data))
           .data
           .address;
       expect(address, '3JvL6Ymt8MVWiCNHC7oWU6nLeHNJKLZGLN');

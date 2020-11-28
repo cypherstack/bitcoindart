@@ -21,11 +21,23 @@ constructSign(f, TransactionBuilder txb) {
     if (inputs[i]['signs'] == null) continue;
     (inputs[i]['signs'] as List<dynamic>).forEach((sign) {
       ECPair keyPair = ECPair.fromWIF(sign['keyPair'], network: network);
+      var redeemScript, witnessScript;
+
+      if (sign['redeemScript'] != null) {
+        redeemScript = bscript.fromASM(sign['redeemScript']);
+      }
+
+      if (sign['witnessScript'] != null) {
+        witnessScript = bscript.fromASM(sign['witnessScript']);
+      }
       txb.sign(
+          prevOutScriptType: sign['prevOutScriptType'],
           vin: i,
           keyPair: keyPair,
+          redeemScript: redeemScript,
+          hashType: sign['hashType'],
           witnessValue: sign['value'],
-          hashType: sign['hashType']);
+          witnessScript: witnessScript);
     });
   }
   return txb;

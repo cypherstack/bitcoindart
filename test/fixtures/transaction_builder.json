@@ -24,6 +24,30 @@
         ]
       },
       {
+        "description": "Transaction w/ P2SH(P2PKH) -> P2PKH",
+        "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000085483045022100a3b254e1c10b5d039f36c05f323995d6e5a367d98dd78a13d5bbc3991b35720e022022fccea3897d594de0689601fbd486588d5bfa6915be2386db0397ee9a6e80b601210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f817981976a914751e76e8199196d454941c45d1b3a323f1433bd688acffffffff0110270000000000001976a914aa4d7985c57e011a8b3dd8e0e5a73aaef41629c588ac00000000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "vout": 0,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2pkh",
+                "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn",
+                "redeemScript": "OP_DUP OP_HASH160 751e76e8199196d454941c45d1b3a323f1433bd6 OP_EQUALVERIFY OP_CHECKSIG"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          {
+            "script": "OP_DUP OP_HASH160 aa4d7985c57e011a8b3dd8e0e5a73aaef41629c5 OP_EQUALVERIFY OP_CHECKSIG",
+            "value": 10000
+          }
+        ]
+      },
+      {
         "description": "Transaction w/ P2PKH -> P2WSH",
         "txHex": "0100000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000006a473044022056c99ba23eb15b3e666b188f87b04d5ef23eeda5298939cdaec35a3bddf3835602205887a5a460f299819b0c93948fafab8b2d64d8c051934431e3bb9acebef5d1b001210279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798ffffffff01102700000000000022002032447752937d355ca2defddcd1f6b4fc53d182f8901cebbcff42f5e381bf0b8000000000",
         "version": 1,

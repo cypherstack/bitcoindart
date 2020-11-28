@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import '../src/utils/script.dart' as bscript;
 import 'templates/pubkeyhash.dart' as pubkeyhash;
+import 'templates/scriptHash.dart' as scriptHash;
 import 'templates/pubkey.dart' as pubkey;
 import 'templates/witnesspubkeyhash.dart' as witnessPubKeyHash;
 
@@ -19,15 +20,18 @@ const SCRIPT_TYPES = {
 String classifyOutput(Uint8List script) {
   if (witnessPubKeyHash.outputCheck(script)) return SCRIPT_TYPES['P2WPKH'];
   if (pubkeyhash.outputCheck(script)) return SCRIPT_TYPES['P2PKH'];
+  if (scriptHash.outputCheck(script)) return SCRIPT_TYPES['P2SH'];
   final chunks = bscript.decompile(script);
   if (chunks == null) throw new ArgumentError('Invalid script');
   return SCRIPT_TYPES['NONSTANDARD'];
 }
 
-String classifyInput(Uint8List script) {
+String classifyInput(Uint8List script, bool allowIncomplete) {
   final chunks = bscript.decompile(script);
   if (chunks == null) throw new ArgumentError('Invalid script');
   if (pubkeyhash.inputCheck(chunks)) return SCRIPT_TYPES['P2PKH'];
+  if (scriptHash.inputCheck(chunks, allowIncomplete))
+    return SCRIPT_TYPES['P2SH'];
   if (pubkey.inputCheck(chunks)) return SCRIPT_TYPES['P2PK'];
   return SCRIPT_TYPES['NONSTANDARD'];
 }
