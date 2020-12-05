@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import '../utils/script.dart' as bscript;
 import './pubkeyhash.dart' as p2pkh;
+import './witnesspubkeyhash.dart' as p2wpkh;
 import '../utils/constants/op.dart';
 
 bool inputCheck(List<dynamic> chunks, bool allowIncomplete) {
@@ -21,7 +22,8 @@ bool inputCheck(List<dynamic> chunks, bool allowIncomplete) {
   if (!bscript.isPushOnly(scriptSigChunks)) return false;
   // is witness?
   if (chunks.length == 1) {
-    // TODO
+    // TODO p2wsh
+    return p2wpkh.outputCheck(bscript.compile(redeemScriptChunks));
   }
 
   if (p2pkh.inputCheck(scriptSigChunks) &&

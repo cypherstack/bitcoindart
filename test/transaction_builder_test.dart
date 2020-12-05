@@ -47,6 +47,7 @@ TransactionBuilder construct(f, [bool dontSign]) {
   final network = NETWORKS[f['network']];
   final txb = new TransactionBuilder(network: network);
   if (f['version'] != null) txb.setVersion(f['version']);
+  if (f['locktime'] != null) txb.setLockTime(f['locktime']);
   (f['inputs'] as List<dynamic>).forEach((input) {
     var prevTx;
     if (input['txRaw'] != null) {

@@ -30,6 +30,9 @@ class P2SH {
           _getDataFromChunk(_chunks);
         }
       }
+      if (data.redeem.witness != null) {
+        data.witness = data.redeem.witness;
+      }
     } else if (data.input != null) {
       _getDataFromInput();
       if (data.redeem.output != null) {

@@ -11,6 +11,7 @@
             "vout": 0,
             "signs": [
               {
+                "prevOutScriptType": "p2pkh",
                 "keyPair": "KwDiBf89QgGbjEhKnhXJuH7LrciVrZi3qYjgd9M7rFU73sVHnoWn"
               }
             ]
@@ -484,6 +485,39 @@
             "script": "OP_DUP OP_HASH160 04ccb4eed8cfa9f6e394e945178960f5ccddb387 OP_EQUALVERIFY OP_CHECKSIG"
           }
         ]
+      },
+      {
+        "description": "SIGHASH V0+V1, P2SH(P2WPKH) -> P2PKH",
+        "txHex": "01000000000101db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a5477010000001716001479091972186c449eb1ded22b78e40d009bdf0089feffffff02b8b4eb0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac0008af2f000000001976a914fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c88ac02473044022047ac8e878352d3ebbde1c94ce3a10d057c24175747116f8288e5d794d12d482f0220217f36a485cae903c713331d877c1f64677e3622ad4010726870540656fe9dcb012103ad1d8e89212f0b92c74d23bb710c00662ad1470198ac48c43f7d6f93a2a2687392040000",
+        "version": 1,
+        "inputs": [
+          {
+            "txId": "77541aeb3c4dac9260b68f74f44c973081a9d4cb2ebe8038b2d70faa201b6bdb",
+            "vout": 1,
+            "signs": [
+              {
+                "prevOutScriptType": "p2sh-p2wpkh",
+                "keyPair": "L57KYn5isHFThD4cohjJgLTZA2vaxnMMKWngnzbttF159yH9dARf",
+                "hashType": 1,
+                "redeemScript": "OP_0 79091972186c449eb1ded22b78e40d009bdf0089",
+                "value": 1000000000
+              }
+            ],
+            "sequence": 4294967294,
+            "prevTxScript": "OP_HASH160 4733f37cf4db86fbc2efed2500b4f4e49f312023 OP_EQUAL"
+          }
+        ],
+        "outputs": [
+          {
+            "value": 199996600,
+            "script": "OP_DUP OP_HASH160 a457b684d7f0d539a46a45bbc043f35b59d0d963 OP_EQUALVERIFY OP_CHECKSIG"
+          },
+          {
+            "value": 800000000,
+            "script": "OP_DUP OP_HASH160 fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 1170
       },
       {
         "description": "P2PKH",
