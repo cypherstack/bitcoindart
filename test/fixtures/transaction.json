@@ -325,6 +325,37 @@
       "weight": 450
     },
     {
+      "description": "P2SH P2WPKH",
+      "id": "a0dd6714722a577c5db08f740cd1525f5383f8771dd0ebecd9ae96eb6623408a",
+      "hash": "8a402366eb96aed9ecebd01d77f883535f52d10c748fb05d7c572a721467dda0",
+      "hex": "01000000015df9a0b9ade2d835881704e0f53b51a4b19ecfc794ea1f3555783dd7f68659ce0000000017160014851a33a5ef0d4279bd5854949174e2c65b1d4500ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac00000000",
+      "whex": "010000000001015df9a0b9ade2d835881704e0f53b51a4b19ecfc794ea1f3555783dd7f68659ce0000000017160014851a33a5ef0d4279bd5854949174e2c65b1d4500ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02483045022100cb3929c128fec5108071b662e5af58e39ac8708882753a421455ca80462956f6022030c0f4738dd1a13fc7a34393002d25c6e8a6399f29c7db4b98f53a9475d94ca20121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b00000000",
+      "raw": {
+        "version": 1,
+        "ins": [
+          {
+            "hash": "5df9a0b9ade2d835881704e0f53b51a4b19ecfc794ea1f3555783dd7f68659ce",
+            "index": 0,
+            "script": "0014851a33a5ef0d4279bd5854949174e2c65b1d4500",
+            "witness": [
+              "3045022100cb3929c128fec5108071b662e5af58e39ac8708882753a421455ca80462956f6022030c0f4738dd1a13fc7a34393002d25c6e8a6399f29c7db4b98f53a9475d94ca201",
+              "038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b"
+            ]
+          }
+        ],
+        "outs": [
+          {
+            "value": 60000,
+            "script": "OP_DUP OP_HASH160 851a33a5ef0d4279bd5854949174e2c65b1d4500 OP_EQUALVERIFY OP_CHECKSIG"
+          }
+        ],
+        "locktime": 0
+      },
+      "coinbase": false,
+      "virtualSize": 136,
+      "weight": 542
+    },
+    {
       "description": "Coinbase transaction w/ witness",
       "id": "c881f7b084a367b0603abbcb9c5c639318e6166770e3f9b27a1ee3f8b6a16517",
       "hash": "1765a1b6f8e31e7ab2f9e3706716e61893635c9ccbbb3a60b067a384b0f781c8",

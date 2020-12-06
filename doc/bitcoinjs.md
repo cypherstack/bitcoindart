@@ -1,7 +1,7 @@
 # bitcoinjs
-本文介绍 `bitcoinjs` 的
+本文主要介绍 `bitcoinjs` 的文件目录和核心数据对象及方法。
 
-## 文件说明
+## 文件目录说明
 - src
   - payments
     - embed.js       // Pay to Data
@@ -28,3 +28,50 @@
   - transaction_builder.js // 交易构建及处理方法
   - transaction.js         // 交易结构体
   - types.js               // 变量类型定义
+
+## 核心数据对象
+### Transaction
+Transaction 类用于存储完整的交易数据，包括`版本`、`输入交易列表`、`输出交易列表`、`锁定时间`。
+#### 属性
+- `version` 版本
+
+- `ins` 输入交易列表
+
+  其中，每条输入交易信息的结构如下：
+  - `hash` 引用的交易哈希，即 TXID
+  - `index` 所引用的交易的输出下标，即 VOUT
+  - `script` 输入交易的脚本签名，即 ScriptSig
+  - `sequence`
+  - `witness` 见证信息
+
+- `outs` 输出交易列表
+
+  其中，每条输出交易信息的结构如下：
+  - `value` 输出值
+  - `script` 锁定脚本，即 ScriptPubKey
+
+- `locktime` 锁定时间
+
+#### 方法
+- static fromBuffer(buffer, _NO_STRICT)
+从Buffer导入交易信息
+
+- static fromHex(hex)
+从Hex字符串导入交易信息
+
+- addInput(hash, index, sequence, scriptSig)
+增加输入交易信息
+
+- addOutput(scriptPubKey, value)
+增加输出交易信息
+
+- clone()
+克隆交易对象
+
+- hashForSignature(inIndex, prevOutScript, hashType)
+获取用于签名的哈希
+
+- hashForWitnessV0(inIndex, prevOutScript, value, hashType) 
+获取用于见证的哈希
+
+## 核心方法
