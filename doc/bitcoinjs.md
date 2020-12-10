@@ -29,7 +29,8 @@
   - transaction.js         // 交易结构体
   - types.js               // 变量类型定义
 
-## 核心数据对象
+## 关键数据对象
+
 ### Transaction
 Transaction 类用于存储完整的交易数据，包括`版本`、`输入交易列表`、`输出交易列表`、`锁定时间`。
 #### 属性
@@ -74,4 +75,73 @@ Transaction 类用于存储完整的交易数据，包括`版本`、`输入交�
 - hashForWitnessV0(inIndex, prevOutScript, value, hashType) 
 获取用于见证的哈希
 
-## 核心方法
+### TransactionBuilder
+
+#### 属性
+- network 网络类型，如 bitcoin、testnet等
+- __PREV_TX_SET 所引用的输入交易集，用于判断交易输出被重复引用的问题
+- __INPUTS 输入交易列表
+- __TX `Transaction` 实例化对象
+
+#### 方法
+- static fromTransaction(transaction, network)
+通过 Transaction 实例对象创建 TransactionBuilder 实例
+
+- setLockTime(locktime)
+设置锁定时间
+
+- setVersion(version)
+设置交易版本
+
+- addInput(txHash, vout, sequence, prevOutScript)
+添加输入交易
+
+- addOutput(scriptPubKey, value)
+添加输出交易
+
+- build()
+构建交易信息
+
+- buildIncomplete()
+构建交易信息（支持非完整数据）
+
+- sign(signParams, keyPair, redeemScript, hashType, witnessValue, witnessScript)
+签名交易
+
+## 关键方法
+
+### expandInput
+获取经过扩展了字段信息的交易输入对象
+
+#### 参数
+- scriptSig 输入交易的脚本签名
+- witnessStack 输入交易的见证信息
+- type 输入交易类型
+- scriptPubKey 脚本公钥，用于P2MS脚本
+
+#### 返回值
+返回值为对象结构，字段如下：
+- prevOutScript 所引用交易的输出脚本
+- prevOutType 所引用交易的输出脚本类型
+- redeemScript 赎回脚本，用于P2SH脚本
+- redeemScriptType 赎回脚本类型，用于P2SH脚本
+- witnessScript 见证脚本，用于P2SH、P2WSH脚本
+- witnessScriptType 见证脚本类型，用于P2SH、P2WSH脚本
+- pubkeys 公钥信息（数组）
+- signatures 签名信息（数组）
+- maxSignatures 签名数量上限，用于P2MS脚本
+
+### expandOutput
+获取经过扩展了字段信息的交易输出对象
+
+#### 参数
+- script 输出交易锁定脚本
+- ourPubKey 公钥
+
+#### 返回值
+返回值为对象结构，字段如下：
+- type 输出交易类型
+- pubkeys 公钥信息（数组）
+- signatures 签名信息（空数组），如
+：[undefined]
+- maxSignatures 签名数量上限，用于P2MS脚本
