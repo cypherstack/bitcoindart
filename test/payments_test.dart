@@ -1,5 +1,6 @@
 import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bitcoindart/src/payments/p2pkh.dart';
+import 'package:bitcoindart/src/payments/p2sh.dart';
 import 'package:bitcoindart/src/payments/p2wpkh.dart';
 import 'package:test/test.dart';
 import 'package:bitcoindart/src/utils/script.dart' as bscript;
@@ -12,13 +13,15 @@ dynamic getPayment({String type, dynamic data, dynamic network}) {
   switch (type) {
     case 'p2pkh':
       return new P2PKH(data: data, network: network);
+    case 'p2sh':
+      return new P2SH(data: data, network: network);
     case 'p2wpkh':
       return new P2WPKH(data: data, network: network);
   }
 }
 
 main() {
-  ['p2pkh', 'p2wpkh'].forEach((p) {
+  ['p2pkh', 'p2sh', 'p2wpkh'].forEach((p) {
     final fixtures = json.decode(
         new File("./test/fixtures/${p}.json").readAsStringSync(encoding: utf8));
 
@@ -94,6 +97,24 @@ PaymentData _preformPaymentData(dynamic x) {
           : null;
   final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
+
+  PaymentData redeem;
+
+  if (x['redeem'] != null) {
+    redeem = PaymentData();
+
+    if (x['redeem']['input'] is String) {
+      redeem.input = bscript.fromASM(x['redeem']['input']);
+    }
+    if (x['redeem']['output'] is String) {
+      redeem.output = bscript.fromASM(x['redeem']['output']);
+    }
+    if (x['redeem']['witness'] is List) {
+      redeem.witness = (x['redeem']['witness'] as List<dynamic>)
+          .map((e) => HEX.decode(e.toString()) as Uint8List)
+          .toList();
+    }
+  }
   return new PaymentData(
       address: address,
       hash: hash,
@@ -101,7 +122,8 @@ PaymentData _preformPaymentData(dynamic x) {
       output: output,
       pubkey: pubkey,
       signature: signature,
-      witness: witness);
+      witness: witness,
+      redeem: redeem);
 }
 
 String _toString(dynamic x) {
