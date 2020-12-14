@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 class PaymentData {
+  String name;
   String address;
   Uint8List hash;
   Uint8List output;
@@ -11,7 +12,8 @@ class PaymentData {
   PaymentData redeem;
 
   PaymentData(
-      {this.address,
+      {this.name,
+      this.address,
       this.hash,
       this.output,
       this.pubkey,
@@ -22,6 +24,6 @@ class PaymentData {
 
   @override
   String toString() {
-    return 'PaymentData{address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input, witness: $witness}';
+    return 'PaymentData{name: $name, address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input, witness: $witness}';
   }
 }

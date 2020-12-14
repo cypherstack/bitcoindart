@@ -18,6 +18,8 @@ class P2PKH {
     _init();
   }
   _init() {
+    data.name = 'p2pkh';
+
     if (data.address != null) {
       _getDataFromAddress(data.address);
       _getDataFromHash();
