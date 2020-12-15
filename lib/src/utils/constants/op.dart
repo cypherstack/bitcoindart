@@ -1,8 +1,8 @@
 /// Script opcodes.
 const OPS = {
   // Push value ops.
-  'OP_0': 0x00,
   'OP_FALSE': 0x00,
+  'OP_0': 0x00,
   'OP_PUSHDATA1': 0x4c,
   'OP_PUSHDATA2': 0x4d,
   'OP_PUSHDATA4': 0x4e,

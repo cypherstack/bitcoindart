@@ -22,6 +22,31 @@ class PaymentData {
       this.witness,
       this.redeem});
 
+  dynamic operator [](String key) {
+    switch (key) {
+      case 'name':
+        return name;
+      case 'address':
+        return address;
+      case 'hash':
+        return hash;
+      case 'output':
+        return output;
+      case 'pubkey':
+        return pubkey;
+      case 'input':
+        return input;
+      case 'signature':
+        return signature;
+      case 'witness':
+        return witness;
+      case 'redeem':
+        return redeem;
+      default:
+        throw ArgumentError('Invalid PaymentData key');
+    }
+  }
+
   @override
   String toString() {
     return 'PaymentData{name: $name, address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input, witness: $witness}';

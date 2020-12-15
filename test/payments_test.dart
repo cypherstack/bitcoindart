@@ -32,31 +32,33 @@ main() {
 
           final payment = getPayment(type: p, data: arguments);
 
-          if (arguments.name == null) {
-            expect(payment.data.name, f['expected']['name']);
-          }
-          if (arguments.address == null) {
-            expect(payment.data.address, f['expected']['address']);
-          }
-          if (arguments.hash == null) {
-            expect(_toString(payment.data.hash), f['expected']['hash']);
-          }
-          if (arguments.pubkey == null) {
-            expect(_toString(payment.data.pubkey), f['expected']['pubkey']);
-          }
-          if (arguments.input == null) {
-            expect(_toString(payment.data.input), f['expected']['input']);
-          }
-          if (arguments.output == null) {
-            expect(_toString(payment.data.output), f['expected']['output']);
-          }
-          if (arguments.signature == null) {
-            expect(
-                _toString(payment.data.signature), f['expected']['signature']);
-          }
-          if (arguments.witness == null) {
-            expect(_toString(payment.data.witness), f['expected']['witness']);
-          }
+          _equate(payment.data, f['expected'], arguments);
+
+          // if (arguments.name == null) {
+          //   expect(payment.data.name, f['expected']['name']);
+          // }
+          // if (arguments.address == null) {
+          //   expect(payment.data.address, f['expected']['address']);
+          // }
+          // if (arguments.hash == null) {
+          //   expect(_toString(payment.data.hash), f['expected']['hash']);
+          // }
+          // if (arguments.pubkey == null) {
+          //   expect(_toString(payment.data.pubkey), f['expected']['pubkey']);
+          // }
+          // if (arguments.input == null) {
+          //   expect(_toString(payment.data.input), f['expected']['input']);
+          // }
+          // if (arguments.output == null) {
+          //   expect(_toString(payment.data.output), f['expected']['output']);
+          // }
+          // if (arguments.signature == null) {
+          //   expect(
+          //       _toString(payment.data.signature), f['expected']['signature']);
+          // }
+          // if (arguments.witness == null) {
+          //   expect(_toString(payment.data.witness), f['expected']['witness']);
+          // }
         });
       });
     });
@@ -105,11 +107,12 @@ main() {
     //           dependency = [dependency];
     //         }
 
-    //         final args = <String, dynamic>{};
+    //         PaymentData args;
     //         dependency.forEach((d) {
-    //           _from(d, detail, args);
+    //           args = _from(d, detail, args);
     //         });
-
+    //         print('arguments===');
+    //         print(args);
     //         final expected = _from(key, detail);
 
     //         test(
@@ -173,20 +176,80 @@ PaymentData _preformPaymentData(dynamic x) {
       redeem: redeem);
 }
 
-_from(String path, PaymentData paymentData,
-    [Map<String, dynamic> result = const <String, dynamic>{}]) {
+_from(String path, PaymentData paymentData, [PaymentData result]) {
   final paths = path.split('.');
 
-  final r = result;
+  var r = result ?? PaymentData();
 
-  // paths.asMap().forEach((i, k) {
-  //   if (i < paths.length - 1) {
-  //   } else {s
-  //     r[k] = paymentData[k];
-  //   }
-  // });
+  paths.asMap().forEach((i, k) {
+    if (i < paths.length - 1) {
+    } else {
+      _copyPaymentDataByKey(k, paymentData, r);
+    }
+  });
 
-  return result;
+  return r;
+}
+
+_copyPaymentDataByKey(String key, PaymentData from, PaymentData to) {
+  switch (key) {
+    case 'name':
+      to.name = from.name;
+      break;
+    case 'address':
+      to.address = from.address;
+      break;
+    case 'hash':
+      to.hash = from.hash;
+      break;
+    case 'output':
+      to.output = from.output;
+      break;
+    case 'signature':
+      to.signature = from.signature;
+      break;
+    case 'pubkey':
+      to.pubkey = from.pubkey;
+      break;
+    case 'input':
+      to.input = from.input;
+      break;
+    case 'witness':
+      to.witness = from.witness;
+      break;
+    case 'redeem':
+      to.redeem = from.redeem;
+      break;
+    default:
+      throw new ArgumentError('Invalid PaymentData key');
+  }
+}
+
+_equate(PaymentData paymentData, dynamic expected, PaymentData arguments) {
+  if (arguments.name == null) {
+    expect(paymentData.name, expected['name']);
+  }
+  if (arguments.address == null) {
+    expect(paymentData.address, expected['address']);
+  }
+  if (arguments.hash == null) {
+    expect(_toString(paymentData.hash), expected['hash']);
+  }
+  if (arguments.pubkey == null) {
+    expect(_toString(paymentData.pubkey), expected['pubkey']);
+  }
+  if (arguments.input == null) {
+    expect(_toString(paymentData.input), expected['input']);
+  }
+  if (arguments.output == null) {
+    expect(_toString(paymentData.output), expected['output']);
+  }
+  if (arguments.signature == null) {
+    expect(_toString(paymentData.signature), expected['signature']);
+  }
+  if (arguments.witness == null) {
+    expect(_toString(paymentData.witness), expected['witness']);
+  }
 }
 
 String _toString(dynamic x) {
