@@ -2,6 +2,7 @@ import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bitcoindart/src/payments/p2pkh.dart';
 import 'package:bitcoindart/src/payments/p2sh.dart';
 import 'package:bitcoindart/src/payments/p2wpkh.dart';
+import 'package:bitcoindart/src/models/networks.dart' as NETWORKS;
 import 'package:test/test.dart';
 import 'package:bitcoindart/src/utils/script.dart' as bscript;
 import 'dart:io';
@@ -29,36 +30,12 @@ main() {
       (fixtures["valid"] as List<dynamic>).forEach((f) {
         test(f['description'] + ' as expected', () {
           final arguments = _preformPaymentData(f['arguments']);
+          final network = _preformNetwork(f['arguments']);
 
-          final payment = getPayment(type: p, data: arguments);
+          final payment =
+              getPayment(type: p, data: arguments, network: network);
 
           _equate(payment.data, f['expected'], arguments);
-
-          // if (arguments.name == null) {
-          //   expect(payment.data.name, f['expected']['name']);
-          // }
-          // if (arguments.address == null) {
-          //   expect(payment.data.address, f['expected']['address']);
-          // }
-          // if (arguments.hash == null) {
-          //   expect(_toString(payment.data.hash), f['expected']['hash']);
-          // }
-          // if (arguments.pubkey == null) {
-          //   expect(_toString(payment.data.pubkey), f['expected']['pubkey']);
-          // }
-          // if (arguments.input == null) {
-          //   expect(_toString(payment.data.input), f['expected']['input']);
-          // }
-          // if (arguments.output == null) {
-          //   expect(_toString(payment.data.output), f['expected']['output']);
-          // }
-          // if (arguments.signature == null) {
-          //   expect(
-          //       _toString(payment.data.signature), f['expected']['signature']);
-          // }
-          // if (arguments.witness == null) {
-          //   expect(_toString(payment.data.witness), f['expected']['witness']);
-          // }
         });
       });
     });
@@ -82,52 +59,50 @@ main() {
     });
 
     if (fixtures['dynamic'] == null) return;
-    // TODO dynamic fixtures
 
-    // group('(dynamic case)', () {
-    //   final depends = fixtures['dynamic']['depends'] as Map<String, dynamic>;
-    //   final details = fixtures['dynamic']['details'] as List<dynamic>;
+    group('(dynamic case)', () {
+      final depends = fixtures['dynamic']['depends'] as Map<String, dynamic>;
+      final details = fixtures['dynamic']['details'] as List<dynamic>;
 
-    //   details.forEach((f) {
-    //     final detail = _preformPaymentData(f);
-    //     final disabled = {};
-    //     if (f['disabled'] != null) {
-    //       (f["disabled"] as List<dynamic>).forEach((k) {
-    //         disabled[k] = true;
-    //       });
-    //     }
+      details.forEach((f) {
+        final detail = _preformPaymentData(f);
+        final disabled = {};
+        if (f['disabled'] != null) {
+          (f["disabled"] as List<dynamic>).forEach((k) {
+            disabled[k] = true;
+          });
+        }
 
-    //     depends.forEach((key, depend) {
-    //       if (disabled[key] == true) return;
+        depends.forEach((key, depend) {
+          if (disabled[key] == true) return;
 
-    //       final dependencies = depend as List;
+          final dependencies = depend as List;
 
-    //       dependencies.forEach((dependency) {
-    //         if (!(dependency is List)) {
-    //           dependency = [dependency];
-    //         }
+          dependencies.forEach((dependency) {
+            if (!(dependency is List)) {
+              dependency = [dependency];
+            }
 
-    //         PaymentData args;
-    //         dependency.forEach((d) {
-    //           args = _from(d, detail, args);
-    //         });
-    //         print('arguments===');
-    //         print(args);
-    //         final expected = _from(key, detail);
+            PaymentData args;
+            dependency.forEach((d) {
+              args = _from(d, detail, args);
+            });
 
-    //         test(
-    //             f['description'] +
-    //                 ', ' +
-    //                 key +
-    //                 ' derives from ' +
-    //                 json.encode(dependency), () {
-    //           final payment = getPayment(type: p, data: args);
-    //           expect(payment, expected);
-    //         });
-    //       });
-    //     });
-    //   });
-    // });
+            final expected = _from(key, detail);
+
+            test(
+                f['description'] +
+                    ', ' +
+                    key +
+                    ' derives from ' +
+                    json.encode(dependency), () {
+              final payment = getPayment(type: p, data: args);
+              _equate(payment.data, expected);
+            });
+          });
+        });
+      });
+    });
   });
 }
 
@@ -176,7 +151,17 @@ PaymentData _preformPaymentData(dynamic x) {
       redeem: redeem);
 }
 
-_from(String path, PaymentData paymentData, [PaymentData result]) {
+_preformNetwork(dynamic x) {
+  if (x['network'] == 'testnet') {
+    return NETWORKS.testnet;
+  }
+  if (x['redeem'] != null && x['redeem']['network'] == 'testnet') {
+    return NETWORKS.testnet;
+  }
+  return NETWORKS.bitcoin;
+}
+
+PaymentData _from(String path, PaymentData paymentData, [PaymentData result]) {
   final paths = path.split('.');
 
   var r = result ?? PaymentData();
@@ -225,42 +210,46 @@ _copyPaymentDataByKey(String key, PaymentData from, PaymentData to) {
   }
 }
 
-_equate(PaymentData paymentData, dynamic expected, PaymentData arguments) {
-  if (arguments.name == null) {
+_equate(PaymentData paymentData, dynamic expected, [PaymentData arguments]) {
+  if (expected['name'] != null) {
     expect(paymentData.name, expected['name']);
   }
-  if (arguments.address == null) {
+  if (expected['address'] != null) {
     expect(paymentData.address, expected['address']);
   }
-  if (arguments.hash == null) {
-    expect(_toString(paymentData.hash), expected['hash']);
+  if (expected['hash'] != null) {
+    expect(tryHex(paymentData.hash), tryHex(expected['hash']));
   }
-  if (arguments.pubkey == null) {
-    expect(_toString(paymentData.pubkey), expected['pubkey']);
+  if (expected['pubkey'] != null) {
+    expect(tryHex(paymentData.pubkey), tryHex(expected['pubkey']));
   }
-  if (arguments.input == null) {
-    expect(_toString(paymentData.input), expected['input']);
+  if (expected['input'] != null) {
+    expect(tryASM(paymentData.input), tryASM(expected['input']));
   }
-  if (arguments.output == null) {
-    expect(_toString(paymentData.output), expected['output']);
+  if (expected['output'] != null) {
+    expect(tryASM(paymentData.output), tryASM(expected['output']));
   }
-  if (arguments.signature == null) {
-    expect(_toString(paymentData.signature), expected['signature']);
+  if (expected['signature'] != null) {
+    expect(tryHex(paymentData.signature), tryHex(expected['signature']));
   }
-  if (arguments.witness == null) {
-    expect(_toString(paymentData.witness), expected['witness']);
+  if (expected['witness'] != null) {
+    expect(tryHex(paymentData.witness), tryHex(expected['witness']));
   }
 }
 
-String _toString(dynamic x) {
-  if (x == null) {
-    return null;
-  }
+tryHex(dynamic x) {
   if (x is Uint8List) {
     return HEX.encode(x);
   }
   if (x is List<dynamic>) {
+    return x.map(tryHex);
+  }
+  return x;
+}
+
+tryASM(dynamic x) {
+  if (x is List<dynamic>) {
     return bscript.toASM(x);
   }
-  return '';
+  return x;
 }

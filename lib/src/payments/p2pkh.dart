@@ -19,7 +19,6 @@ class P2PKH {
   }
   _init() {
     data.name = 'p2pkh';
-
     if (data.address != null) {
       _getDataFromAddress(data.address);
       _getDataFromHash();
@@ -42,6 +41,7 @@ class P2PKH {
         throw new ArgumentError('Input has invalid signature');
       if (!isPoint(_chunks[1]))
         throw new ArgumentError('Input has invalid pubkey');
+      data.witness = [];
     } else {
       throw new ArgumentError('Not enough data');
     }

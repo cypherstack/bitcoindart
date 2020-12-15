@@ -164,5 +164,28 @@
         "input": "300602010002010001 030000000000000000000000000000000000000000000000000000000000000001 ffff"
       }
     }
-  ]
+  ],
+  "dynamic": {
+    "depends": {
+      "address": [ "address", "output", "hash", "pubkey", "input" ],
+      "hash": [ "address", "output", "hash", "pubkey", "input" ],
+      "output": [ "address", "output", "hash", "pubkey", "input" ],
+      "pubkey": [ "input" ],
+      "signature": [ "input" ],
+      "input": [ [ "pubkey", "signature" ] ],
+      "witness": [ "input" ]
+    },
+    "details": [
+      {
+        "description": "p2pkh",
+        "address": "134D6gYy8DsR5m4416BnmgASuMBqKvogQh",
+        "hash": "168b992bcfc44050310b3a94bd0771136d0b28d1",
+        "output": "OP_DUP OP_HASH160 168b992bcfc44050310b3a94bd0771136d0b28d1 OP_EQUALVERIFY OP_CHECKSIG",
+        "pubkey": "030000000000000000000000000000000000000000000000000000000000000001",
+        "signature": "300602010002010001",
+        "input": "300602010002010001 030000000000000000000000000000000000000000000000000000000000000001",
+        "witness": []
+      }
+    ]
+  }
 }
