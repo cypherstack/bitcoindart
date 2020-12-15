@@ -78,6 +78,53 @@ main() {
         });
       });
     });
+
+    if (fixtures['dynamic'] == null) return;
+    // TODO dynamic fixtures
+
+    // group('(dynamic case)', () {
+    //   final depends = fixtures['dynamic']['depends'] as Map<String, dynamic>;
+    //   final details = fixtures['dynamic']['details'] as List<dynamic>;
+
+    //   details.forEach((f) {
+    //     final detail = _preformPaymentData(f);
+    //     final disabled = {};
+    //     if (f['disabled'] != null) {
+    //       (f["disabled"] as List<dynamic>).forEach((k) {
+    //         disabled[k] = true;
+    //       });
+    //     }
+
+    //     depends.forEach((key, depend) {
+    //       if (disabled[key] == true) return;
+
+    //       final dependencies = depend as List;
+
+    //       dependencies.forEach((dependency) {
+    //         if (!(dependency is List)) {
+    //           dependency = [dependency];
+    //         }
+
+    //         final args = <String, dynamic>{};
+    //         dependency.forEach((d) {
+    //           _from(d, detail, args);
+    //         });
+
+    //         final expected = _from(key, detail);
+
+    //         test(
+    //             f['description'] +
+    //                 ', ' +
+    //                 key +
+    //                 ' derives from ' +
+    //                 json.encode(dependency), () {
+    //           final payment = getPayment(type: p, data: args);
+    //           expect(payment, expected);
+    //         });
+    //       });
+    //     });
+    //   });
+    // });
   });
 }
 
@@ -124,6 +171,22 @@ PaymentData _preformPaymentData(dynamic x) {
       signature: signature,
       witness: witness,
       redeem: redeem);
+}
+
+_from(String path, PaymentData paymentData,
+    [Map<String, dynamic> result = const <String, dynamic>{}]) {
+  final paths = path.split('.');
+
+  final r = result;
+
+  // paths.asMap().forEach((i, k) {
+  //   if (i < paths.length - 1) {
+  //   } else {s
+  //     r[k] = paymentData[k];
+  //   }
+  // });
+
+  return result;
 }
 
 String _toString(dynamic x) {

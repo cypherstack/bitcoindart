@@ -4,6 +4,7 @@ import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:bech32/bech32.dart';
 import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart';
+import 'payments/p2sh.dart';
 import 'payments/p2wpkh.dart';
 
 class Address {
@@ -24,11 +25,17 @@ class Address {
       decodeBase58 = bs58check.decode(address);
     } catch (err) {}
     if (decodeBase58 != null) {
-      if (decodeBase58[0] != network.pubKeyHash)
-        throw new ArgumentError('Invalid version or Network mismatch');
-      P2PKH p2pkh =
-          new P2PKH(data: new PaymentData(address: address), network: network);
-      return p2pkh.data.output;
+      if (decodeBase58[0] == network.pubKeyHash) {
+        return P2PKH(data: new PaymentData(address: address), network: network)
+            .data
+            .output;
+      }
+      if (decodeBase58[0] == network.scriptHash) {
+        return P2SH(data: new PaymentData(address: address), network: network)
+            .data
+            .output;
+      }
+      throw new ArgumentError('Invalid version or Network mismatch');
     } else {
       try {
         decodeBech32 = segwit.decode(address);
