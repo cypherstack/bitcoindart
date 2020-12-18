@@ -164,53 +164,44 @@ _preformNetwork(dynamic x) {
 PaymentData _from(String path, PaymentData paymentData, [PaymentData result]) {
   final paths = path.split('.');
 
-  var r = result ?? PaymentData();
+  result = result ?? PaymentData();
+
+  var r = result;
 
   paths.asMap().forEach((i, k) {
     if (i < paths.length - 1) {
+      r[k] = r[k] ?? PaymentData();
+
+      // recurse
+      r = r[k];
+      paymentData = paymentData[k];
     } else {
-      _copyPaymentDataByKey(k, paymentData, r);
+      r[k] = paymentData[k];
     }
   });
 
-  return r;
+  return result;
 }
 
-_copyPaymentDataByKey(String key, PaymentData from, PaymentData to) {
-  switch (key) {
-    case 'name':
-      to.name = from.name;
-      break;
-    case 'address':
-      to.address = from.address;
-      break;
-    case 'hash':
-      to.hash = from.hash;
-      break;
-    case 'output':
-      to.output = from.output;
-      break;
-    case 'signature':
-      to.signature = from.signature;
-      break;
-    case 'pubkey':
-      to.pubkey = from.pubkey;
-      break;
-    case 'input':
-      to.input = from.input;
-      break;
-    case 'witness':
-      to.witness = from.witness;
-      break;
-    case 'redeem':
-      to.redeem = from.redeem;
-      break;
-    default:
-      throw new ArgumentError('Invalid PaymentData key');
+_equateBase(PaymentData paymentData, dynamic expected) {
+  if (expected['output'] != null) {
+    expect(tryASM(paymentData.output), tryASM(expected['output']));
+  }
+  if (expected['input'] != null) {
+    expect(tryASM(paymentData.input), tryASM(expected['input']));
+  }
+  if (expected['witness'] != null) {
+    expect(tryHex(paymentData.witness), tryHex(expected['witness']));
   }
 }
 
 _equate(PaymentData paymentData, dynamic expected, [PaymentData arguments]) {
+  _equateBase(paymentData, expected);
+
+  if (expected['redeem'] != null) {
+    _equateBase(paymentData.redeem, expected['redeem']);
+  }
+
   if (expected['name'] != null) {
     expect(paymentData.name, expected['name']);
   }
@@ -223,17 +214,8 @@ _equate(PaymentData paymentData, dynamic expected, [PaymentData arguments]) {
   if (expected['pubkey'] != null) {
     expect(tryHex(paymentData.pubkey), tryHex(expected['pubkey']));
   }
-  if (expected['input'] != null) {
-    expect(tryASM(paymentData.input), tryASM(expected['input']));
-  }
-  if (expected['output'] != null) {
-    expect(tryASM(paymentData.output), tryASM(expected['output']));
-  }
   if (expected['signature'] != null) {
     expect(tryHex(paymentData.signature), tryHex(expected['signature']));
-  }
-  if (expected['witness'] != null) {
-    expect(tryHex(paymentData.witness), tryHex(expected['witness']));
   }
 }
 

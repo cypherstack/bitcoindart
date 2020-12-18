@@ -47,6 +47,40 @@ class PaymentData {
     }
   }
 
+  operator []=(String key, dynamic value) {
+    switch (key) {
+      case 'name':
+        name = value;
+        break;
+      case 'address':
+        address = value;
+        break;
+      case 'hash':
+        hash = value;
+        break;
+      case 'output':
+        output = value;
+        break;
+      case 'pubkey':
+        pubkey = value;
+        break;
+      case 'input':
+        input = value;
+        break;
+      case 'signature':
+        signature = value;
+        break;
+      case 'witness':
+        witness = value;
+        break;
+      case 'redeem':
+        redeem = value;
+        break;
+      default:
+        throw ArgumentError('Invalid PaymentData key');
+    }
+  }
+
   @override
   String toString() {
     return 'PaymentData{name: $name, address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input, witness: $witness}';
