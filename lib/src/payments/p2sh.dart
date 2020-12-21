@@ -20,6 +20,12 @@ class P2SH {
   _init() {
     data.name = 'p2sh';
 
+    if (data.address == null &&
+        data.hash == null &&
+        data.output == null &&
+        data.redeem == null &&
+        data.input == null) throw new ArgumentError('Not enough data');
+
     if (data.address != null) {
       _getDataFromAddress(data.address);
       _getDataFromHash();
@@ -35,20 +41,31 @@ class P2SH {
           data.output[1] != 0x14 ||
           data.output[22] != OPS['OP_EQUAL'])
         throw new ArgumentError('Output is invalid');
-      if (data.hash == null) {
-        data.hash = data.output.sublist(2, 22);
-      }
+      final hash = data.output.sublist(2, 22);
+
+      if (data.hash != null && data.hash.toString() != hash.toString())
+        throw new ArgumentError('Hash mismatch');
+      data.hash = hash;
       _getDataFromHash();
     }
 
     if (data.input != null) {
       _getDataFromInput();
+      _checkRedeem(data.redeem);
       _getDataFromRedeem();
     }
 
     if (data.redeem != null) {
       _checkRedeem(data.redeem);
       _getDataFromRedeem();
+    }
+
+    if (data.witness != null) {
+      if (data.redeem != null &&
+          data.redeem.witness != null &&
+          !_stacksEqual(data.redeem.witness, data.witness)) {
+        throw new ArgumentError('Witness and redeem.witness mismatch');
+      }
     }
   }
 
@@ -57,7 +74,14 @@ class P2SH {
     final version = payload.buffer.asByteData().getUint8(0);
     if (version != network.scriptHash)
       throw new ArgumentError('Invalid version or Network mismatch');
-    data.hash = payload.sublist(1);
+
+    final hash = payload.sublist(1);
+
+    if (data.hash != null && data.hash.toString() != hash.toString())
+      throw new ArgumentError('Hash mismatch');
+
+    data.hash = hash;
+
     if (data.hash.length != 20) throw new ArgumentError('Invalid address');
   }
 
@@ -85,6 +109,13 @@ class P2SH {
       if (decompile.length < 1) {
         throw new ArgumentError('Redeem.output too short');
       }
+
+      // match hash against other sources
+      final hash2 = hash160(redeem.output);
+      if (data.hash != null &&
+          data.hash.length > 0 &&
+          (data.hash.toString() != hash2.toString()))
+        throw new ArgumentError('Hash mismatch');
     }
 
     if (redeem.input != null) {
@@ -115,7 +146,10 @@ class P2SH {
         _getDataFromChunk(_chunks);
       }
     }
-    data.witness = data.redeem.witness ?? [];
+
+    if (data.witness == null) {
+      data.witness = data.redeem.witness ?? [];
+    }
   }
 
   _getDataFromChunk([List<dynamic> _chunks]) {
@@ -125,18 +159,40 @@ class P2SH {
   }
 
   _getDataFromInput() {
+    final chunks = _chunks();
+    if (chunks == null || chunks.length < 1)
+      throw new ArgumentError('Input too short');
+
+    if (_redeem().output == null) throw new ArgumentError('Input is invalid');
+
     if (data.redeem == null) {
       data.redeem = _redeem();
     }
   }
 
+  List<dynamic> _chunks() {
+    return bscript.decompile(data.input);
+  }
+
   _redeem() {
     final chunks = bscript.decompile(data.input);
-
+    final output = chunks[chunks.length - 1] is Uint8List
+        ? chunks[chunks.length - 1]
+        : null;
     return new PaymentData(
-      output: chunks[chunks.length - 1],
+      output: output,
       input: bscript.compile(chunks.sublist(0, chunks.length - 1)),
       witness: data.witness ?? [],
     );
+  }
+
+  bool _stacksEqual(List<Uint8List> a, List<Uint8List> b) {
+    if (a.length != b.length) return false;
+    var i = 0;
+    return a.every((x) {
+      final res = x.toString() == b[i].toString();
+      i += 1;
+      return res;
+    });
   }
 }

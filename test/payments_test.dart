@@ -109,7 +109,14 @@ main() {
 PaymentData _preformPaymentData(dynamic x) {
   final address = x['address'];
   final hash = x['hash'] != null ? HEX.decode(x['hash']) : null;
-  final input = x['input'] != null ? bscript.fromASM(x['input']) : null;
+  var input;
+  if (x['inputHex'] is String) {
+    input = HEX.decode(x['inputHex']) as Uint8List;
+  }
+  if (x['input'] != null) {
+    input = bscript.fromASM(x['input']);
+  }
+
   final witness = x['witness'] != null
       ? (x['witness'] as List<dynamic>)
           .map((e) => HEX.decode(e.toString()) as Uint8List)

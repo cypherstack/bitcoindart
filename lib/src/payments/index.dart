@@ -83,6 +83,6 @@ class PaymentData {
 
   @override
   String toString() {
-    return 'PaymentData{name: $name, address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input, witness: $witness}';
+    return 'PaymentData{name: $name, address: $address, hash: $hash, output: $output, signature: $signature, pubkey: $pubkey, input: $input, witness: $witness, redeem: ${redeem.toString()}}';
   }
 }

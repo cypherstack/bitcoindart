@@ -199,12 +199,118 @@
   ],
   "invalid": [
     {
+      "exception": "Not enough data",
+      "arguments": {}
+    },
+    {
+      "description": "Unexpected OP_RESERVED",
+      "exception": "Output is invalid",
+      "arguments": {
+        "output": "OP_HASH256 ffffffffffffffffffffffffffffffffffffff OP_EQUAL OP_RESERVED"
+      }
+    },
+    {
+      "description": "address.hash != H",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "hash": "ffffffffffffffffffffffffffffffffffffffff"
+      }
+    },
+    {
+      "description": "address.hash != output.hash",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "address": "325CuTNSYmvurXaBmhNFer5zDkKnDXZggu",
+        "output": "OP_HASH160 ffffffffffffffffffffffffffffffffffffffff OP_EQUAL"
+      }
+    },
+    {
+      "description": "output.hash != H",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "hash": "ffffffffffffffffffffffffffffffffffffffff",
+        "output": "OP_HASH160 0432515d8fe8de31be8207987fc6d67b29d5e7cc OP_EQUAL"
+      }
+    },
+    {
+      "description": "H(redeem.output) != H",
+      "exception": "Hash mismatch",
+      "arguments": {
+        "hash": "ffffffffffffffffffffffffffffffffffffffff",
+        "redeem": {
+          "output": "03e15819590382a9dd878f01e2f0cbce541564eb415e43b440472d883ecd283058 OP_CHECKSIG"
+        }
+      }
+    },
+    {
+      "exception": "Invalid address",
+      "arguments": {
+        "address": "TYPjCiGbKiwP6r12cdkmVjySbQr7mb3r"
+      }
+    },
+    {
+      "exception": "Invalid address",
+      "arguments": {
+        "address": "EDaBpuERpLssFzbCV1kgy8tKJsHrcwmzY7HDMF2"
+      }
+    },
+    {
+      "exception": "Input too short",
+      "arguments": {
+        "input": ""
+      }
+    },
+    {
+      "exception": "Input too short",
+      "arguments": {
+        "inputHex": "01ff02ff"
+      }
+    },
+    {
+      "exception": "Input is invalid",
+      "arguments": {
+        "input": "OP_0 OP_0"
+      }
+    },
+    {
       "exception": "Redeem.output too short",
       "arguments": {
         "redeem": {
           "input": "OP_0",
           "output": ""
         }
+      }
+    },
+    {
+      "exception": "Witness and redeem.witness mismatch",
+      "arguments": {
+        "witness": [
+          "3045ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+          "030000000000000000000000000000000000000000000000000000000000000001"
+        ],
+        "redeem": {
+          "witness": [
+            "3045dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "030000000000000000000000000000000000000000000000000000000000000001"
+          ]
+        }
+      }
+    },
+    {
+      "exception": "Hash mismatch",
+      "arguments": {
+        "hash": "ffffffffffffffffffffffffffffffffffffffff",
+        "redeem": {
+          "input": "OP_0",
+          "output": "ffff"
+        }
+      }
+    },
+    {
+      "exception": "Empty input",
+      "arguments": {
+        "inputHex": "01ff"
       }
     }
   ],

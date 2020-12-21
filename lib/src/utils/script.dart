@@ -68,7 +68,7 @@ List<dynamic> decompile(dynamic buffer) {
   List<dynamic> chunks = [];
 
   if (buffer == null) return chunks;
-  if (buffer is List && buffer.length == 2) return buffer;
+  if (buffer is List<Uint8List>) return buffer;
 
   var i = 0;
   while (i < buffer.length) {
