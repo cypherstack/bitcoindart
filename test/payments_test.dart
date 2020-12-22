@@ -124,9 +124,7 @@ PaymentData _preformPaymentData(dynamic x) {
       : null;
   final output = x['output'] != null
       ? bscript.fromASM(x['output'])
-      : x['outputHex'] != null
-          ? HEX.decode(x['outputHex'])
-          : null;
+      : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
   final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
 

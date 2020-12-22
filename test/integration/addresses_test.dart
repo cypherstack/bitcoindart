@@ -2,7 +2,7 @@ import '../../lib/src/models/networks.dart' as NETWORKS;
 import '../../lib/src/ecpair.dart' show ECPair;
 import '../../lib/src/payments/index.dart' show PaymentData;
 import '../../lib/src/payments/p2sh.dart' show P2SH;
-import '../../lib/src/payments/p2pkh.dart' show P2PKH, P2PKHData;
+import '../../lib/src/payments/p2pkh.dart' show P2PKH;
 import '../../lib/src/payments/p2wpkh.dart' show P2WPKH;
 import 'package:pointycastle/digests/sha256.dart';
 import 'dart:convert';
@@ -80,7 +80,7 @@ main() {
               .address;
       expect(address, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4');
     });
-    test('can generate a SegWit testnet address', () {
+    test('can generate a SegWit Testnets address', () {
       final testnet = NETWORKS.testnet;
       final keyPair = ECPair.fromWIF(
           'cPaJYBMDLjQp5gSUHnBfhX4Rgj95ekBS6oBttwQLw3qfsKKcDfuB');

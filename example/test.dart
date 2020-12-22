@@ -10,13 +10,9 @@ import 'package:pointycastle/digests/ripemd160.dart';
 
 import '../lib/src/models/networks.dart' as NETWORKS;
 import '../lib/src/payments/p2pkh.dart' show P2PKH;
-import '../lib/src/payments/p2wpkh.dart' show P2WPKH;
 import '../lib/src/payments/index.dart' show PaymentData;
 import 'package:bs58check/bs58check.dart' as bs58check;
-
 import '../lib/src/ecpair.dart' show ECPair;
-
-import 'package:bech32/bech32.dart';
 import '../lib/src/transaction_builder.dart';
 
 rng(int number) {

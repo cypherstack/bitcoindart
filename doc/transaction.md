@@ -119,7 +119,13 @@ f752b9c61ed56d61049bf24317c683762cdf66ef91f9562d234cca18b9503aee
 
 可以看到这个UTXO的值为 0.3 BTC，同时包含一个“OP_DUP OP_HASH160...”的锁定脚本（scriptPubKey）。
 
-交易输入中的解锁脚本（scriptSig）是
+交易输入中的解锁脚本（scriptSig）是：
+```
+483045022100d55e97e70a3e562feda4c21e4d50d9148a3c19dc068ed695781b8f742709e938022008d27447261cd0865a4ed22902ed572d63c66a767c361a309ce59b5f3a8b6a8a012103cc6ebd10797b6ef801eb98c901ecfc94b80f9bc0aff920457aadf0f956db82fa
+```
+大多数情况下，解锁脚本是一个证明比特币所有权的数字签名和公钥，但是并不是所有的解锁脚本都包含签名。
+
+序列号为 4294967295，对应十六进制 0xFFFFFFFF。
 
 ## 交易输出
 交易输出是一个名为 vout 的数组：

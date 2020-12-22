@@ -82,6 +82,7 @@ class Transaction {
       toffset += slice.length;
     }
 
+    // ignore: unused_element
     writeUInt8(i) {
       bytes.setUint8(toffset, i);
       toffset++;
@@ -92,6 +93,7 @@ class Transaction {
       toffset += 4;
     }
 
+    // ignore: unused_element
     writeInt32(i) {
       bytes.setInt32(toffset, i, Endian.little);
       toffset += 4;
@@ -112,6 +114,7 @@ class Transaction {
       writeSlice(slice);
     }
 
+    // ignore: unused_element
     writeVector(vector) {
       writeVarInt(vector.length);
       vector.forEach((buf) {
@@ -514,12 +517,16 @@ class Transaction {
 
   @override
   String toString() {
+    final s = [];
     this.ins.forEach((txInput) {
+      s.add(txInput.toString());
       print(txInput.toString());
     });
     this.outs.forEach((txOutput) {
+      s.add(txOutput.toString());
       print(txOutput.toString());
     });
+    return s.join('\n');
   }
 }
 
@@ -715,7 +722,9 @@ class Output {
       if (wpkh1.toString() != wpkh2.toString())
         throw ArgumentError('Hash mismatch!');
       return new Output(type: type, pubkeys: [ourPubKey], signatures: [null]);
-    } else if (type == SCRIPT_TYPES['P2PKH']) {
+    }
+
+    if (type == SCRIPT_TYPES['P2PKH']) {
       Uint8List pkh1 =
           new P2PKH(data: new PaymentData(output: script)).data.hash;
       Uint8List pkh2 = bcrypto.hash160(ourPubKey);
@@ -723,6 +732,8 @@ class Output {
         throw ArgumentError('Hash mismatch!');
       return new Output(type: type, pubkeys: [ourPubKey], signatures: [null]);
     }
+
+    return new Output();
   }
 
   factory Output.clone(Output output) {
@@ -765,24 +776,6 @@ bool isCoinbaseHash(Uint8List buffer) {
     if (buffer[i] != 0) return false;
   }
   return true;
-}
-
-bool _isP2PKHInput(script) {
-  final chunks = bscript.decompile(script);
-  return chunks != null &&
-      chunks.length == 2 &&
-      bscript.isCanonicalScriptSignature(chunks[0]) &&
-      bscript.isCanonicalPubKey(chunks[1]);
-}
-
-bool _isP2PKHOutput(script) {
-  final buffer = bscript.compile(script);
-  return buffer.length == 25 &&
-      buffer[0] == OPS['OP_DUP'] &&
-      buffer[1] == OPS['OP_HASH160'] &&
-      buffer[2] == 0x14 &&
-      buffer[23] == OPS['OP_EQUALVERIFY'] &&
-      buffer[24] == OPS['OP_CHECKSIG'];
 }
 
 int varSliceSize(Uint8List someScript) {

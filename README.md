@@ -47,16 +47,19 @@ main() {
 ```
 
 The below examples are implemented as integration tests:
-- [Generate a random address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L21)
+- [Generate a random address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L24)
 - [Validating address](https://github.com/keybagio/bitcoindart/blob/master/test/address_test.dart)
-- [Generate an address from a SHA256 hash](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L26)
-- [Import an address via WIF](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L32)
-- [Generate a Testnet address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L37)
-- [Generate a Litecoin address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L45)
-- [Generate a native Segwit address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L53)
-- [Create a 1-to-1 Transaction](https://github.com/keybagio/bitcoindart/blob/master/test/integration/transactions_test.dart#L7)
-- [Create a 2-to-2 Transaction](https://github.com/keybagio/bitcoindart/blob/master/test/integration/transactions_test.dart#L21)
-- [Create a Transaction with a SegWit P2WPKH input](https://github.com/keybagio/bitcoindart/blob/master/test/integration/transactions_test.dart#L45)
+- [Generate an address from a SHA256 hash](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L32)
+- [Import an address via WIF](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L42)
+- [Generate a Testnet address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L51)
+- [Generate a Litecoin address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L63)
+- [Generate a Segwit address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L74)
+- [Generate a Segwit Testnet address](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L83)
+- [Generate a Segwit address (via P2SH)](https://github.com/keybagio/bitcoindart/blob/master/test/integration/addresses_test.dart#L95)
+- [Create a 1-to-1 Transaction](https://github.com/keybagio/bitcoindart/blob/master/test/integration/transactions_test.dart#11)
+- [Create a 2-to-2 Transaction](https://github.com/keybagio/bitcoindart/blob/master/test/integration/transactions_test.dart#L30)
+- [Create a Transaction with a SegWit P2SH(P2WPKH) input](https://github.com/keybagio/bitcoindart/blob/master/test/integration/transactions_test.dart#L62)
+- [Create a Transaction with a SegWit P2WPKH input](https://github.com/keybagio/bitcoindart/blob/master/test/integration/transactions_test.dart#L86)
 - [Import a BIP32 testnet xpriv and export to WIF](https://github.com/keybagio/bitcoindart/blob/master/test/integration/bip32_test.dart#L9)
 - [Export a BIP32 xpriv, then import it](https://github.com/keybagio/bitcoindart/blob/master/test/integration/bip32_test.dart#L14)
 - [Export a BIP32 xpub](https://github.com/keybagio/bitcoindart/blob/master/test/integration/bip32_test.dart#L23)
@@ -66,7 +69,6 @@ The below examples are implemented as integration tests:
 
 
 ### TODO
-- Generate a SegWit P2SH address
 - Generate a SegWit multisig address
 - Create a Transaction with a P2SH(multisig) input
 - Build a Transaction w/ psbt format
@@ -89,9 +91,10 @@ pub run test
 ```
 // Analyze code
 flutter analyze
+dartanalyzer lib example test
 
 // Format code
-dartfmt -w lib example
+dartfmt -w lib example test
 
 // Publish validation
 pub publish --dry-run --verbose

@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:hex/hex.dart';
+
 import '../../lib/src/ecpair.dart';
 import '../../lib/src/transaction_builder.dart';
 import '../../lib/src/models/networks.dart' as NETWORKS;
@@ -59,8 +59,31 @@ main() {
           '01000000024c94e48a870b85f41228d33cf25213dfcc8dd796e7211ed6b1f9a014809dbbb5060000006a473044022041450c258ce7cac7da97316bf2ea1ce66d88967c4df94f3e91f4c2a30f5d08cb02203674d516e6bb2b0afd084c3551614bd9cec3c2945231245e891b145f2d6951f0012103e05ce435e462ec503143305feb6c00e06a3ad52fbf939e85c65f3a765bb7baacffffffff3077d9de049574c3af9bc9c09a7c9db80f2d94caaf63988c9166249b955e867d000000006b483045022100aeb5f1332c79c446d3f906e4499b2e678500580a3f90329edf1ba502eec9402e022072c8b863f8c8d6c26f4c691ac9a6610aa4200edc697306648ee844cfbc089d7a012103df7940ee7cddd2f97763f67e1fb13488da3fbdd7f9c68ec5ef0864074745a289ffffffff0220bf0200000000001976a9147dd65592d0ab2fe0d0257d571abf032cd9db93dc88ac10980200000000001976a914c42e7ef92fdb603af844d064faad95db9bcdfd3d88ac00000000');
     });
 
-    test('can create (and broadcast via 3PBP) a Transaction, w/ a P2WPKH input',
-        () {
+    test('can create a Transaction, w/ a P2SH(P2WPKH) input', () {
+      final alice = ECPair.fromWIF(
+          'L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN');
+      final p2wpkh =
+          new P2WPKH(data: new PaymentData(pubkey: alice.publicKey)).data;
+      final redeemScript = p2wpkh.output;
+
+      final txb = new TransactionBuilder();
+      txb.setVersion(1);
+      txb.addInput(
+          'ce5986f6d73d7855351fea94c7cf9eb1a4513bf5e004178835d8e2adb9a0f95d',
+          0);
+      txb.addOutput('1D8nG3VetkT4CfyXGKm7EdLU1YbMD3Amuj', 60000);
+
+      txb.sign(
+          vin: 0,
+          keyPair: alice,
+          redeemScript: redeemScript,
+          witnessValue: 80000);
+      // prepare for broadcast to the Bitcoin network, see 'can broadcast a Transaction' below
+      expect(txb.build().toHex(),
+          '010000000001015df9a0b9ade2d835881704e0f53b51a4b19ecfc794ea1f3555783dd7f68659ce0000000017160014851a33a5ef0d4279bd5854949174e2c65b1d4500ffffffff0160ea0000000000001976a914851a33a5ef0d4279bd5854949174e2c65b1d450088ac02483045022100cb3929c128fec5108071b662e5af58e39ac8708882753a421455ca80462956f6022030c0f4738dd1a13fc7a34393002d25c6e8a6399f29c7db4b98f53a9475d94ca20121038de63cf582d058a399a176825c045672d5ff8ea25b64d28d4375dcdb14c02b2b00000000');
+    });
+
+    test('can create a Transaction, w/ a P2WPKH input', () {
       final alice = ECPair.fromWIF(
           'cUNfunNKXNNJDvUvsjxz5tznMR6ob1g5K6oa4WGbegoQD3eqf4am',
           network: NETWORKS.testnet);

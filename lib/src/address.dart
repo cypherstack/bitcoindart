@@ -23,7 +23,9 @@ class Address {
     var decodeBech32;
     try {
       decodeBase58 = bs58check.decode(address);
-    } catch (err) {}
+    } catch (err) {
+      // Base58check decode fail
+    }
     if (decodeBase58 != null) {
       if (decodeBase58[0] == network.pubKeyHash) {
         return P2PKH(data: new PaymentData(address: address), network: network)
@@ -39,7 +41,9 @@ class Address {
     } else {
       try {
         decodeBech32 = segwit.decode(address);
-      } catch (err) {}
+      } catch (err) {
+        // Bech32 decode fail
+      }
       if (decodeBech32 != null) {
         if (network.bech32 != decodeBech32.hrp)
           throw new ArgumentError('Invalid prefix or Network mismatch');

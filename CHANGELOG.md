@@ -1,3 +1,6 @@
+## 2.2.0
+- Support P2SH(P2WPKH)
+
 ## 2.1.0
 - Release bitcoindart package
 
