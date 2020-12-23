@@ -41,8 +41,8 @@ EncodedPushData encode(Uint8List buffer, number, offset) {
 }
 
 DecodedPushData decode(Uint8List bf, int offset) {
-  ByteBuffer buffer = bf.buffer;
-  int opcode = buffer.asByteData().getUint8(offset);
+  var buffer = bf.buffer;
+  var opcode = buffer.asByteData().getUint8(offset);
   int number, size;
 
   // ~6 bit

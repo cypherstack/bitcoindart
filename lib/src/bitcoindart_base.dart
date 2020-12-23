@@ -51,8 +51,8 @@ class HDWallet {
 
   HDWallet(
       {@required bip32, @required p2pkh, @required this.network, this.seed}) {
-    this._bip32 = bip32;
-    this._p2pkh = p2pkh;
+    _bip32 = bip32;
+    _p2pkh = p2pkh;
   }
 
   HDWallet derivePath(String path) {
@@ -98,12 +98,12 @@ class HDWallet {
   }
 
   Uint8List sign(String message) {
-    Uint8List messageHash = magicHash(message, network);
+    var messageHash = magicHash(message, network);
     return _bip32.sign(messageHash);
   }
 
   bool verify({String message, Uint8List signature}) {
-    Uint8List messageHash = magicHash(message);
+    var messageHash = magicHash(message);
     return _bip32.verify(messageHash, signature);
   }
 }
@@ -141,12 +141,12 @@ class Wallet {
   }
 
   Uint8List sign(String message) {
-    Uint8List messageHash = magicHash(message, network);
+    var messageHash = magicHash(message, network);
     return _keyPair.sign(messageHash);
   }
 
   bool verify({String message, Uint8List signature}) {
-    Uint8List messageHash = magicHash(message, network);
+    var messageHash = magicHash(message, network);
     return _keyPair.verify(messageHash, signature);
   }
 }

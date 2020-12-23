@@ -5,7 +5,7 @@ import './witnesspubkeyhash.dart' as p2wpkh;
 import '../utils/constants/op.dart';
 
 bool inputCheck(List<dynamic> chunks, bool allowIncomplete) {
-  if (chunks.length < 1) return false;
+  if (chunks.isEmpty) return false;
 
   final lastChunk = chunks.last;
 

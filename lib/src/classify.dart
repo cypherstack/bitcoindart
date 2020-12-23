@@ -30,8 +30,9 @@ String classifyInput(Uint8List script, bool allowIncomplete) {
   final chunks = bscript.decompile(script);
   if (chunks == null) throw ArgumentError('Invalid script');
   if (pubkeyhash.inputCheck(chunks)) return SCRIPT_TYPES['P2PKH'];
-  if (scriptHash.inputCheck(chunks, allowIncomplete))
+  if (scriptHash.inputCheck(chunks, allowIncomplete)) {
     return SCRIPT_TYPES['P2SH'];
+  }
   if (pubkey.inputCheck(chunks)) return SCRIPT_TYPES['P2PK'];
   return SCRIPT_TYPES['NONSTANDARD'];
 }

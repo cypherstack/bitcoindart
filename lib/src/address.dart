@@ -18,7 +18,7 @@ class Address {
   }
 
   static Uint8List addressToOutputScript(String address, [NetworkType nw]) {
-    NetworkType network = nw ?? bitcoin;
+    var network = nw ?? bitcoin;
     var decodeBase58;
     var decodeBech32;
     try {
@@ -45,11 +45,13 @@ class Address {
         // Bech32 decode fail
       }
       if (decodeBech32 != null) {
-        if (network.bech32 != decodeBech32.hrp)
+        if (network.bech32 != decodeBech32.hrp) {
           throw ArgumentError('Invalid prefix or Network mismatch');
-        if (decodeBech32.version != 0)
+        }
+        if (decodeBech32.version != 0) {
           throw ArgumentError('Invalid address version');
-        P2WPKH p2wpkh =
+        }
+        var p2wpkh =
             P2WPKH(data: PaymentData(address: address), network: network);
         return p2wpkh.data.output;
       }

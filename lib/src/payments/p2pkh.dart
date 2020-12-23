@@ -33,11 +33,12 @@ class P2PKH {
       _getDataFromHash();
       _getDataFromChunk();
     } else if (data.input != null) {
-      List<dynamic> _chunks = bscript.decompile(data.input);
+      var _chunks = bscript.decompile(data.input);
       _getDataFromChunk(_chunks);
       if (_chunks.length != 2) throw ArgumentError('Input is invalid');
-      if (!bscript.isCanonicalScriptSignature(_chunks[0]))
+      if (!bscript.isCanonicalScriptSignature(_chunks[0])) {
         throw ArgumentError('Input has invalid signature');
+      }
       if (!isPoint(_chunks[1])) throw ArgumentError('Input has invalid pubkey');
       data.witness = [];
     } else {
@@ -52,9 +53,10 @@ class P2PKH {
       data.hash = hash160(data.pubkey);
       _getDataFromHash();
     }
-    if (data.signature == null && _chunks != null)
+    if (data.signature == null && _chunks != null) {
       data.signature =
           (_chunks[0] is int) ? Uint8List.fromList([_chunks[0]]) : _chunks[0];
+    }
     if (data.input == null && data.pubkey != null && data.signature != null) {
       data.input = bscript.compile([data.signature, data.pubkey]);
     }
@@ -67,22 +69,21 @@ class P2PKH {
       payload.setRange(1, payload.length, data.hash);
       data.address = bs58check.encode(payload);
     }
-    if (data.output == null) {
-      data.output = bscript.compile([
+    data.output ??= bscript.compile([
         OPS['OP_DUP'],
         OPS['OP_HASH160'],
         data.hash,
         OPS['OP_EQUALVERIFY'],
         OPS['OP_CHECKSIG']
       ]);
-    }
   }
 
   void _getDataFromAddress(String address) {
-    Uint8List payload = bs58check.decode(address);
+    var payload = bs58check.decode(address);
     final version = payload.buffer.asByteData().getUint8(0);
-    if (version != network.pubKeyHash)
+    if (version != network.pubKeyHash) {
       throw ArgumentError('Invalid version or Network mismatch');
+    }
     data.hash = payload.sublist(1);
     if (data.hash.length != 20) throw ArgumentError('Invalid address');
   }

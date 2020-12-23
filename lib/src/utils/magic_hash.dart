@@ -7,9 +7,9 @@ import '../../src/models/networks.dart';
 Uint8List magicHash(String message, [NetworkType network]) {
   network = network ?? bitcoin;
   Uint8List messagePrefix = utf8.encode(network.messagePrefix);
-  int messageVISize = encodingLength(message.length);
-  int length = messagePrefix.length + messageVISize + message.length;
-  Uint8List buffer = Uint8List(length);
+  var messageVISize = encodingLength(message.length);
+  var length = messagePrefix.length + messageVISize + message.length;
+  var buffer = Uint8List(length);
   buffer.setRange(0, messagePrefix.length, messagePrefix);
   encode(message.length, buffer, messagePrefix.length);
   buffer.setRange(

@@ -6,7 +6,7 @@ Uint8List encode(int number, [Uint8List buffer, int offset]) {
 
   buffer = buffer ?? Uint8List(encodingLength(number));
   offset = offset ?? 0;
-  ByteData bytes = buffer.buffer.asByteData();
+  var bytes = buffer.buffer.asByteData();
   // 8 bit
   if (number < 0xfd) {
     bytes.setUint8(offset, number);
@@ -32,7 +32,7 @@ Uint8List encode(int number, [Uint8List buffer, int offset]) {
 
 int decode(Uint8List buffer, [int offset]) {
   offset = offset ?? 0;
-  ByteData bytes = buffer.buffer.asByteData();
+  var bytes = buffer.buffer.asByteData();
   final first = bytes.getUint8(offset);
 
   // 8 bit

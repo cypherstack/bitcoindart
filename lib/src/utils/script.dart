@@ -46,7 +46,7 @@ Uint8List compile(List<dynamic> chunks) {
         offset += 1;
         return null;
       }
-      pushData.EncodedPushData epd =
+      var epd =
           pushData.encode(buffer, chunk.length, offset);
       offset += epd.size;
       buffer = epd.buffer;
@@ -59,12 +59,12 @@ Uint8List compile(List<dynamic> chunks) {
     }
   });
 
-  if (offset != buffer.length) throw ArgumentError("Could not decode chunks");
+  if (offset != buffer.length) throw ArgumentError('Could not decode chunks');
   return buffer;
 }
 
 List<dynamic> decompile(dynamic buffer) {
-  List<dynamic> chunks = [];
+  var chunks = <dynamic>[];
 
   if (buffer == null) return chunks;
   if (buffer is List<Uint8List>) return buffer;
@@ -132,7 +132,7 @@ String toASM(List<dynamic> c) {
 }
 
 int asMinimalOP(Uint8List buffer) {
-  if (buffer.length == 0) return OPS['OP_0'];
+  if (buffer.isEmpty) return OPS['OP_0'];
   if (buffer.length != 1) return null;
   if (buffer[0] >= 1 && buffer[0] <= 16) return OP_INT_BASE + buffer[0];
   if (buffer[0] == 0x81) return OPS['OP_1NEGATE'];
@@ -234,7 +234,7 @@ Uint8List toDER(Uint8List x) {
   }
   if (i == x.length) return ZERO;
   x = x.sublist(i);
-  List<int> combine = List.from(ZERO);
+  var combine = List<int>.from(ZERO);
   combine.addAll(x);
   if (x[0] & 0x80 != 0) return Uint8List.fromList(combine);
   return x;

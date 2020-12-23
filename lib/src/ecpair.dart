@@ -16,7 +16,7 @@ class ECPair {
     this.compressed = compressed ?? true;
   }
   Uint8List get publicKey {
-    if (_Q == null) _Q = ecc.pointFromScalar(_d, compressed);
+    _Q ??= ecc.pointFromScalar(_d, compressed);
     return _Q;
   }
 
@@ -38,7 +38,7 @@ class ECPair {
   }
 
   factory ECPair.fromWIF(String w, {NetworkType network}) {
-    wif.WIF decoded = wif.decode(w);
+    var decoded = wif.decode(w);
     final version = decoded.version;
     // TODO support multi networks
     NetworkType nw;
@@ -66,11 +66,13 @@ class ECPair {
   }
   factory ECPair.fromPrivateKey(Uint8List privateKey,
       {NetworkType network, bool compressed}) {
-    if (privateKey.length != 32)
+    if (privateKey.length != 32) {
       throw ArgumentError(
           'Expected property privateKey of type Buffer(Length: 32)');
-    if (!ecc.isPrivate(privateKey))
+    }
+    if (!ecc.isPrivate(privateKey)) {
       throw ArgumentError('Private key not in range [1, n)');
+    }
     return ECPair(privateKey, null, network: network, compressed: compressed);
   }
   factory ECPair.makeRandom(

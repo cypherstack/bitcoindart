@@ -24,7 +24,7 @@ rngKeybag(int number) {
 }
 
 Uint8List hash160(Uint8List buffer) {
-  Uint8List _tmp = SHA256Digest().process(buffer);
+  final _tmp = SHA256Digest().process(buffer);
   return RIPEMD160Digest().process(_tmp);
 }
 
