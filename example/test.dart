@@ -15,11 +15,11 @@ import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:bitcoindart/src/ecpair.dart' show ECPair;
 import 'package:bitcoindart/src/transaction_builder.dart';
 
-rng(int number) {
+List<int> rng(int number) {
   return utf8.encode('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
 }
 
-rngKeybag(int number) {
+List<int> rngKeybag(int number) {
   return utf8.encode('zzzzzzzzzzzzzzzzzzzzzzzzzzkeybag');
 }
 
@@ -29,7 +29,7 @@ Uint8List hash160(Uint8List buffer) {
 }
 
 // 通过原始方式创建地址
-createAddressInOriginalWay() {
+void createAddressInOriginalWay() {
   final keyPair = ECPair.makeRandom(rng: rng);
   print(keyPair.publicKey);
   print(keyPair.publicKey.length);
@@ -45,7 +45,7 @@ createAddressInOriginalWay() {
   print(address);
 }
 
-createAddress(Function rng) {
+dynamic createAddress(Function rng) {
   final keyPair = ECPair.makeRandom(rng: rng);
   final wif = keyPair.toWIF();
   final address =
@@ -60,7 +60,7 @@ createAddress(Function rng) {
 }
 
 // 创建交易
-createTransaction() {
+void createTransaction() {
   final alice =
       ECPair.fromWIF('L2uPYXe17xSTqbCjZvL2DsyXPCbXspvcu5mHLDYUgzdUbZGSKrSr');
   final address2 =
@@ -101,7 +101,7 @@ Map<String, dynamic> createTestnetAddress(Function rng) {
   };
 }
 
-createTestnetTransaction(String txHash) {
+void createTestnetTransaction(String txHash) {
   final keybag =
       ECPair.fromWIF('cRgnQe9MUu1JznntrLaoQpB476M8PURvXVQB5MHjaqzhL42Cse1T');
   final address = P2PKH(
@@ -124,7 +124,7 @@ createTestnetTransaction(String txHash) {
   print(txb.build().toHex());
 }
 
-main() {
+void main() {
   // createAddressInOriginalWay();
 
   // createAddress(rng);

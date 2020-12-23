@@ -17,7 +17,7 @@ class P2SH {
     this.data = data;
     _init();
   }
-  _init() {
+  void _init() {
     data.name = 'p2sh';
 
     if (data.address == null &&
@@ -98,13 +98,13 @@ class P2SH {
     }
 
     data.output ??= bscript.compile([
-        OPS['OP_HASH160'],
-        data.hash,
-        OPS['OP_EQUAL'],
-      ]);
+      OPS['OP_HASH160'],
+      data.hash,
+      OPS['OP_EQUAL'],
+    ]);
   }
 
-  _checkRedeem(PaymentData redeem) {
+  void _checkRedeem(PaymentData redeem) {
     // is the redeem output empty/invalid?
     if (redeem.output != null) {
       final decompile = bscript.decompile(redeem.output);
@@ -139,7 +139,7 @@ class P2SH {
     }
   }
 
-  _getDataFromRedeem() {
+  void _getDataFromRedeem() {
     if (data.redeem.output != null) {
       data.hash = hash160(data.redeem.output);
       _getDataFromHash();
@@ -154,13 +154,13 @@ class P2SH {
     data.witness ??= data.redeem.witness ?? [];
   }
 
-  _getDataFromChunk([List<dynamic> _chunks]) {
+  void _getDataFromChunk([List<dynamic> _chunks]) {
     if (data.input == null && _chunks != null) {
       data.input = bscript.compile(_chunks);
     }
   }
 
-  _getDataFromInput() {
+  void _getDataFromInput() {
     final chunks = _chunks();
     if (chunks == null || chunks.isEmpty) {
       throw ArgumentError('Input too short');
@@ -175,7 +175,7 @@ class P2SH {
     return bscript.decompile(data.input);
   }
 
-  _redeem() {
+  PaymentData _redeem() {
     final chunks = bscript.decompile(data.input);
     final output = chunks[chunks.length - 1] is Uint8List
         ? chunks[chunks.length - 1]

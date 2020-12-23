@@ -67,7 +67,7 @@ class TransactionBuilder {
     _tx.version = version;
   }
 
-  setLockTime(int locktime) {
+  bool setLockTime(int locktime) {
     if (locktime < 0 || locktime > 0xFFFFFFFF) {
       throw ArgumentError('Expected Uint32');
     }
@@ -81,6 +81,7 @@ class TransactionBuilder {
       throw ArgumentError('No, this would invalidate signatures');
     }
     _tx.locktime = locktime;
+    return true;
   }
 
   int addOutput(dynamic data, int value) {
@@ -121,7 +122,7 @@ class TransactionBuilder {
         Input(sequence: sequence, prevOutScript: prevOutScript, value: value));
   }
 
-  sign(
+  dynamic sign(
       {@required int vin,
       @required ECPair keyPair,
       String prevOutScriptType,
@@ -376,7 +377,7 @@ class TransactionBuilder {
         (input.hasWitness == false || input.value != null);
   }
 
-  _addInputUnsafe(Uint8List hash, int vout, Input options) {
+  int _addInputUnsafe(Uint8List hash, int vout, Input options) {
     var txHash = HEX.encode(hash);
     Input input;
     if (isCoinbaseHash(hash)) {

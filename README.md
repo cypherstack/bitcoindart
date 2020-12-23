@@ -96,12 +96,12 @@ pub outdated --no-dev-dependencies --up-to-date --no-dependency-overrides
 flutter analyze
 dart analyze
 
-// Format code
-dartfmt -w --fix --follow-links lib example test 
-
 // Auto fix code(Use it cautiously)
 pub global activate dartfix
-dartfix .
+dartfix --pedantic -w .
+
+// Format code
+dartfmt -w --fix --follow-links .
 
 // Publish validation
 pub publish --dry-run --verbose

@@ -1,3 +1,6 @@
+## 2.2.1
+- Fix analyze warning
+
 ## 2.2.0
 - Support P2SH(P2WPKH)
 

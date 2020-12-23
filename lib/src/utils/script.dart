@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'package:hex/hex.dart';
 import 'package:bip32/src/utils/ecurve.dart' as ecc;
 import 'constants/op.dart';
-import 'push_data.dart' as pushData;
+import 'push_data.dart' as pushdata;
 import 'check_types.dart';
 
 Map<int, String> REVERSE_OPS =
@@ -31,7 +31,7 @@ Uint8List compile(List<dynamic> chunks) {
     if (chunk.length == 1 && asMinimalOP(chunk) != null) {
       return acc + 1;
     }
-    return acc + pushData.encodingLength(chunk.length) + chunk.length;
+    return acc + pushdata.encodingLength(chunk.length) + chunk.length;
   });
   var buffer = Uint8List(bufferSize);
 
@@ -46,8 +46,7 @@ Uint8List compile(List<dynamic> chunks) {
         offset += 1;
         return null;
       }
-      var epd =
-          pushData.encode(buffer, chunk.length, offset);
+      var epd = pushdata.encode(buffer, chunk.length, offset);
       offset += epd.size;
       buffer = epd.buffer;
       buffer.setRange(offset, offset + chunk.length, chunk);
@@ -75,7 +74,7 @@ List<dynamic> decompile(dynamic buffer) {
 
     // data chunk
     if ((opcode > OPS['OP_0']) && (opcode <= OPS['OP_PUSHDATA4'])) {
-      final d = pushData.decode(buffer, i);
+      final d = pushdata.decode(buffer, i);
 
       // did reading a pushDataInt fail?
       if (d == null) return null;

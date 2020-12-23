@@ -1,6 +1,6 @@
 name: bitcoindart
 description: A dart Bitcoin library for Flutter. BIP32, BIP39, P2PKH integration.
-version: 2.2.0
+version: 2.2.1
 homepage: https://github.com/keybagio/bitcoindart
 author: KY <harrykyguo@gmail.com>
 

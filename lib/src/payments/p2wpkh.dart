@@ -20,7 +20,7 @@ class P2WPKH {
     _init();
   }
 
-  _init() {
+  void _init() {
     if (data.address == null &&
         data.hash == null &&
         data.output == null &&

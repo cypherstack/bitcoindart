@@ -58,15 +58,15 @@ class Transaction {
     return witness != null;
   }
 
-  setInputScript(int index, Uint8List scriptSig) {
+  void setInputScript(int index, Uint8List scriptSig) {
     ins[index].script = scriptSig;
   }
 
-  setWitness(int index, List<Uint8List> witness) {
+  void setWitness(int index, List<Uint8List> witness) {
     ins[index].witness = witness;
   }
 
-  hashForWitnessV0(
+  Uint8List hashForWitnessV0(
       int inIndex, Uint8List prevOutScript, int value, int hashType) {
     var tbuffer = Uint8List.fromList([]);
     var toffset = 0;
@@ -77,45 +77,45 @@ class Transaction {
     var hashPrevouts = ZERO;
     var hashSequence = ZERO;
 
-    writeSlice(slice) {
+    void writeSlice(slice) {
       tbuffer.setRange(toffset, toffset + slice.length, slice);
       toffset += slice.length;
     }
 
     // ignore: unused_element
-    writeUInt8(i) {
+    void writeUInt8(i) {
       bytes.setUint8(toffset, i);
       toffset++;
     }
 
-    writeUInt32(i) {
+    void writeUInt32(i) {
       bytes.setUint32(toffset, i, Endian.little);
       toffset += 4;
     }
 
     // ignore: unused_element
-    writeInt32(i) {
+    void writeInt32(i) {
       bytes.setInt32(toffset, i, Endian.little);
       toffset += 4;
     }
 
-    writeUInt64(i) {
+    void writeUInt64(i) {
       bytes.setUint64(toffset, i, Endian.little);
       toffset += 8;
     }
 
-    writeVarInt(i) {
+    void writeVarInt(i) {
       varuint.encode(i, tbuffer, toffset);
       toffset += varuint.encodingLength(i);
     }
 
-    writeVarSlice(slice) {
+    void writeVarSlice(slice) {
       writeVarInt(slice.length);
       writeSlice(slice);
     }
 
     // ignore: unused_element
-    writeVector(vector) {
+    void writeVector(vector) {
       writeVarInt(vector.length);
       vector.forEach((buf) {
         writeVarSlice(buf);
@@ -188,7 +188,8 @@ class Transaction {
     return bcrypto.hash256(tbuffer);
   }
 
-  hashForSignature(int inIndex, Uint8List prevOutScript, int hashType) {
+  List<int> hashForSignature(
+      int inIndex, Uint8List prevOutScript, int hashType) {
     if (inIndex >= ins.length) return ONE;
     // ignore OP_CODESEPARATOR
     final ourScript =
@@ -247,7 +248,7 @@ class Transaction {
     return bcrypto.hash256(buffer);
   }
 
-  _byteLength(_ALLOW_WITNESS) {
+  num _byteLength(_ALLOW_WITNESS) {
     var hasWitness = _ALLOW_WITNESS && hasWitnesses();
     return (hasWitness ? 10 : 8) +
         varuint.encodingLength(ins.length) +
@@ -308,7 +309,8 @@ class Transaction {
     return HEX.encode(getHash().reversed.toList());
   }
 
-  _toBuffer([Uint8List buffer, initialOffset, bool _ALLOW_WITNESS = false]) {
+  Uint8List _toBuffer(
+      [Uint8List buffer, initialOffset, bool _ALLOW_WITNESS = false]) {
     // _ALLOW_WITNESS is used to separate witness part when calculating tx id
     buffer ??= Uint8List(_byteLength(_ALLOW_WITNESS));
 
@@ -317,42 +319,42 @@ class Transaction {
     var bytes = buffer.buffer.asByteData();
     var offset = initialOffset ?? 0;
 
-    writeSlice(slice) {
+    void writeSlice(slice) {
       buffer.setRange(offset, offset + slice.length, slice);
       offset += slice.length;
     }
 
-    writeUInt8(i) {
+    void writeUInt8(i) {
       bytes.setUint8(offset, i);
       offset++;
     }
 
-    writeUInt32(i) {
+    void writeUInt32(i) {
       bytes.setUint32(offset, i, Endian.little);
       offset += 4;
     }
 
-    writeInt32(i) {
+    void writeInt32(i) {
       bytes.setInt32(offset, i, Endian.little);
       offset += 4;
     }
 
-    writeUInt64(i) {
+    void writeUInt64(i) {
       bytes.setUint64(offset, i, Endian.little);
       offset += 8;
     }
 
-    writeVarInt(i) {
+    void writeVarInt(i) {
       varuint.encode(i, buffer, offset);
       offset += varuint.encodingLength(i);
     }
 
-    writeVarSlice(slice) {
+    void writeVarSlice(slice) {
       writeVarInt(slice.length);
       writeSlice(slice);
     }
 
-    writeVector(vector) {
+    void writeVector(vector) {
       writeVarInt(vector.length);
       vector.forEach((buf) {
         writeVarSlice(buf);

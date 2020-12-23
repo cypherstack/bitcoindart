@@ -17,7 +17,7 @@ class P2PKH {
     this.data = data;
     _init();
   }
-  _init() {
+  void _init() {
     data.name = 'p2pkh';
     if (data.address != null) {
       _getDataFromAddress(data.address);
@@ -70,12 +70,12 @@ class P2PKH {
       data.address = bs58check.encode(payload);
     }
     data.output ??= bscript.compile([
-        OPS['OP_DUP'],
-        OPS['OP_HASH160'],
-        data.hash,
-        OPS['OP_EQUALVERIFY'],
-        OPS['OP_CHECKSIG']
-      ]);
+      OPS['OP_DUP'],
+      OPS['OP_HASH160'],
+      data.hash,
+      OPS['OP_EQUALVERIFY'],
+      OPS['OP_CHECKSIG']
+    ]);
   }
 
   void _getDataFromAddress(String address) {
@@ -89,7 +89,7 @@ class P2PKH {
   }
 }
 
-isValidOutput(Uint8List data) {
+bool isValidOutput(Uint8List data) {
   return data.length == 25 &&
       data[0] == OPS['OP_DUP'] &&
       data[1] == OPS['OP_HASH160'] &&

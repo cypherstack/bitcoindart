@@ -13,7 +13,7 @@ class P2PK {
     _init();
   }
 
-  _init() {
+  void _init() {
     if (data.output != null) {
       if (data.output[data.output.length - 1] != OPS['OP_CHECKSIG']) {
         throw ArgumentError('Output is invalid');
