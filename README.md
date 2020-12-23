@@ -89,6 +89,9 @@ pub run test
 
 ## Script
 ```
+// Analyze pub dependencies
+pub outdated --no-dev-dependencies --up-to-date --no-dependency-overrides
+
 // Analyze code
 flutter analyze
 dartanalyzer lib example test

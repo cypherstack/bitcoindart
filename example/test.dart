@@ -8,12 +8,12 @@ import 'package:pointycastle/digests/sha256.dart';
 // 导入 RIPEMD160Digest
 import 'package:pointycastle/digests/ripemd160.dart';
 
-import '../lib/src/models/networks.dart' as NETWORKS;
-import '../lib/src/payments/p2pkh.dart' show P2PKH;
-import '../lib/src/payments/index.dart' show PaymentData;
+import 'package:bitcoindart/src/models/networks.dart' as networks;
+import 'package:bitcoindart/src/payments/p2pkh.dart' show P2PKH;
+import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bs58check/bs58check.dart' as bs58check;
-import '../lib/src/ecpair.dart' show ECPair;
-import '../lib/src/transaction_builder.dart';
+import 'package:bitcoindart/src/ecpair.dart' show ECPair;
+import 'package:bitcoindart/src/transaction_builder.dart';
 
 rng(int number) {
   return utf8.encode('zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz');
@@ -85,7 +85,7 @@ createTransaction() {
 
 // 创建Testnet地址
 Map<String, dynamic> createTestnetAddress(Function rng) {
-  final testnet = NETWORKS.testnet;
+  final testnet = networks.testnet;
   final keyPair = ECPair.makeRandom(network: testnet, rng: rng);
   final wif = keyPair.toWIF();
   final address =
@@ -106,11 +106,11 @@ createTestnetTransaction(String txHash) {
       ECPair.fromWIF('cRgnQe9MUu1JznntrLaoQpB476M8PURvXVQB5MHjaqzhL42Cse1T');
   final address = P2PKH(
           data: PaymentData(pubkey: keybag.publicKey),
-          network: NETWORKS.testnet)
+          network: networks.testnet)
       .data
       .address;
   print(address);
-  final txb = TransactionBuilder(network: NETWORKS.testnet);
+  final txb = TransactionBuilder(network: networks.testnet);
 
   txb.setVersion(1);
   txb.addInput(

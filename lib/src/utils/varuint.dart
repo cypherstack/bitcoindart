@@ -50,13 +50,13 @@ int decode(Uint8List buffer, [int offset]) {
     var lo = bytes.getUint32(offset + 1, Endian.little);
     var hi = bytes.getUint32(offset + 5, Endian.little);
     var number = hi * 0x0100000000 + lo;
-    if (!isUint(number, 53)) throw ArgumentError("Expected UInt53");
+    if (!isUint(number, 53)) throw ArgumentError('Expected UInt53');
     return number;
   }
 }
 
 int encodingLength(int number) {
-  if (!isUint(number, 53)) throw ArgumentError("Expected UInt53");
+  if (!isUint(number, 53)) throw ArgumentError('Expected UInt53');
   return (number < 0xfd
       ? 1
       : number <= 0xffff ? 3 : number <= 0xffffffff ? 5 : 9);

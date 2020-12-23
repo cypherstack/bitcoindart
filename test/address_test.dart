@@ -1,14 +1,14 @@
 import 'package:test/test.dart';
-import '../lib/src/address.dart' show Address;
-import '../lib/src/models/networks.dart' as NETWORKS;
+import 'package:bitcoindart/src/address.dart' show Address;
+import 'package:bitcoindart/src/models/networks.dart' as networks;
 
-main() {
+void main() {
   group('Address', () {
     group('validateAddress', () {
       test('base58 addresses and valid network', () {
         expect(
             Address.validateAddress(
-                'mhv6wtF2xzEqMNd3TbXx9TjLLo6mp2MUuT', NETWORKS.testnet),
+                'mhv6wtF2xzEqMNd3TbXx9TjLLo6mp2MUuT', networks.testnet),
             true);
         expect(Address.validateAddress('1K6kARGhcX9nJpJeirgcYdGAgUsXD59nHZ'),
             true);
@@ -16,17 +16,17 @@ main() {
       test('base58 addresses and invalid network', () {
         expect(
             Address.validateAddress(
-                'mhv6wtF2xzEqMNd3TbXx9TjLLo6mp2MUuT', NETWORKS.bitcoin),
+                'mhv6wtF2xzEqMNd3TbXx9TjLLo6mp2MUuT', networks.bitcoin),
             false);
         expect(
             Address.validateAddress(
-                '1K6kARGhcX9nJpJeirgcYdGAgUsXD59nHZ', NETWORKS.testnet),
+                '1K6kARGhcX9nJpJeirgcYdGAgUsXD59nHZ', networks.testnet),
             false);
       });
       test('bech32 addresses and valid network', () {
         expect(
             Address.validateAddress(
-                'tb1qgmp0h7lvexdxx9y05pmdukx09xcteu9sx2h4ya', NETWORKS.testnet),
+                'tb1qgmp0h7lvexdxx9y05pmdukx09xcteu9sx2h4ya', networks.testnet),
             true);
         expect(
             Address.validateAddress(
@@ -41,7 +41,7 @@ main() {
             false);
         expect(
             Address.validateAddress(
-                'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', NETWORKS.testnet),
+                'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', networks.testnet),
             false);
       });
       test('invalid addresses', () {

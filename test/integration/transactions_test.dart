@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 
 import 'package:bitcoindart/src/ecpair.dart';
 import 'package:bitcoindart/src/transaction_builder.dart';
-import 'package:bitcoindart/src/models/networks.dart' as NETWORKS;
+import 'package:bitcoindart/src/models/networks.dart' as networks;
 import 'package:bitcoindart/src/payments/p2wpkh.dart' show P2WPKH;
 import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 
@@ -85,12 +85,12 @@ void main() {
     test('can create a Transaction, w/ a P2WPKH input', () {
       final alice = ECPair.fromWIF(
           'cUNfunNKXNNJDvUvsjxz5tznMR6ob1g5K6oa4WGbegoQD3eqf4am',
-          network: NETWORKS.testnet);
+          network: networks.testnet);
       final p2wpkh = P2WPKH(
               data: PaymentData(pubkey: alice.publicKey),
-              network: NETWORKS.testnet)
+              network: networks.testnet)
           .data;
-      final txb = TransactionBuilder(network: NETWORKS.testnet);
+      final txb = TransactionBuilder(network: networks.testnet);
       txb.setVersion(1);
       txb.addInput(
           '53676626f5042d42e15313492ab7e708b87559dc0a8c74b7140057af51a2ed5b',

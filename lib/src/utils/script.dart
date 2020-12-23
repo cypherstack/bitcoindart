@@ -174,8 +174,9 @@ bool bip66check(buffer) {
   if (lenR > 1 && (buffer[4] == 0x00) && buffer[5] & 0x80 == 0) return false;
 
   if (buffer[lenR + 6] & 0x80 != 0) return false;
-  if (lenS > 1 && (buffer[lenR + 6] == 0x00) && buffer[lenR + 7] & 0x80 == 0)
+  if (lenS > 1 && (buffer[lenR + 6] == 0x00) && buffer[lenR + 7] & 0x80 == 0) {
     return false;
+  }
   return true;
 }
 
@@ -188,10 +189,12 @@ Uint8List bip66encode(r, s) {
   if (lenS > 33) throw ArgumentError('S length is too long');
   if (r[0] & 0x80 != 0) throw ArgumentError('R value is negative');
   if (s[0] & 0x80 != 0) throw ArgumentError('S value is negative');
-  if (lenR > 1 && (r[0] == 0x00) && r[1] & 0x80 == 0)
+  if (lenR > 1 && (r[0] == 0x00) && r[1] & 0x80 == 0) {
     throw ArgumentError('R value excessively padded');
-  if (lenS > 1 && (s[0] == 0x00) && s[1] & 0x80 == 0)
+  }
+  if (lenS > 1 && (s[0] == 0x00) && s[1] & 0x80 == 0) {
     throw ArgumentError('S value excessively padded');
+  }
 
   var signature = Uint8List(6 + lenR + lenS);
 
@@ -208,24 +211,27 @@ Uint8List bip66encode(r, s) {
 }
 
 Uint8List encodeSignature(Uint8List signature, int hashType) {
-  if (!isUint(hashType, 8)) throw ArgumentError("Invalid hasType $hashType");
-  if (signature.length != 64) throw ArgumentError("Invalid signature");
+  if (!isUint(hashType, 8)) throw ArgumentError('Invalid hasType $hashType');
+  if (signature.length != 64) throw ArgumentError('Invalid signature');
   final hashTypeMod = hashType & ~0x80;
-  if (hashTypeMod <= 0 || hashTypeMod >= 4)
+  if (hashTypeMod <= 0 || hashTypeMod >= 4) {
     throw ArgumentError('Invalid hashType $hashType');
+  }
 
   final hashTypeBuffer = Uint8List(1);
   hashTypeBuffer.buffer.asByteData().setUint8(0, hashType);
   final r = toDER(signature.sublist(0, 32));
   final s = toDER(signature.sublist(32, 64));
-  List<int> combine = List.from(bip66encode(r, s));
+  final combine = List<int>.from(bip66encode(r, s));
   combine.addAll(List.from(hashTypeBuffer));
   return Uint8List.fromList(combine);
 }
 
 Uint8List toDER(Uint8List x) {
   var i = 0;
-  while (x[i] == 0) ++i;
+  while (x[i] == 0) {
+    ++i;
+  }
   if (i == x.length) return ZERO;
   x = x.sublist(i);
   List<int> combine = List.from(ZERO);

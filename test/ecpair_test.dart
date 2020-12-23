@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:hex/hex.dart';
 import 'package:bitcoindart/src/ecpair.dart' show ECPair;
-import 'package:bitcoindart/src/models/networks.dart' as NETWORKS;
+import 'package:bitcoindart/src/models/networks.dart' as networks;
 
 final ONE = HEX
     .decode('0000000000000000000000000000000000000000000000000000000000000001');
@@ -24,8 +24,8 @@ void main() {
       });
       test('supports the network option', () {
         final keyPair = ECPair.fromPrivateKey(ONE,
-            network: NETWORKS.testnet, compressed: false);
-        expect(keyPair.network, NETWORKS.testnet);
+            network: networks.testnet, compressed: false);
+        expect(keyPair.network, networks.testnet);
       });
       (fixtures['valid'] as List).forEach((f) {
         test('derives public key for ${f['WIF']}', () {
@@ -98,13 +98,13 @@ void main() {
       test('retains the same defaults as ECPair constructor', () {
         final keyPair = ECPair.makeRandom();
         expect(keyPair.compressed, true);
-        expect(keyPair.network, NETWORKS.bitcoin);
+        expect(keyPair.network, networks.bitcoin);
       });
       test('supports the options parameter', () {
         final keyPair =
-            ECPair.makeRandom(compressed: false, network: NETWORKS.testnet);
+            ECPair.makeRandom(compressed: false, network: networks.testnet);
         expect(keyPair.compressed, false);
-        expect(keyPair.network, NETWORKS.testnet);
+        expect(keyPair.network, networks.testnet);
       });
       test('throws if d is bad length', () {
         Uint8List rng(int number) {
@@ -130,13 +130,13 @@ void main() {
   });
 }
 
-NETWORKS.NetworkType _getNetwork(f) {
+networks.NetworkType _getNetwork(f) {
   var network;
   if (f['network'] != null) {
     if (f['network'] == 'bitcoin') {
-      network = NETWORKS.bitcoin;
+      network = networks.bitcoin;
     } else if (f['network'] == 'testnet') {
-      network = NETWORKS.testnet;
+      network = networks.testnet;
     }
   }
   return network;

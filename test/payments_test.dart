@@ -2,7 +2,7 @@ import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bitcoindart/src/payments/p2pkh.dart';
 import 'package:bitcoindart/src/payments/p2sh.dart';
 import 'package:bitcoindart/src/payments/p2wpkh.dart';
-import 'package:bitcoindart/src/models/networks.dart' as NETWORKS;
+import 'package:bitcoindart/src/models/networks.dart' as networks;
 import 'package:test/test.dart';
 import 'package:bitcoindart/src/utils/script.dart' as bscript;
 import 'dart:io';
@@ -24,7 +24,7 @@ dynamic getPayment({String type, dynamic data, dynamic network}) {
 void main() {
   ['p2pkh', 'p2sh', 'p2wpkh'].forEach((p) {
     final fixtures = json.decode(
-        File("./test/fixtures/${p}.json").readAsStringSync(encoding: utf8));
+        File('./test/fixtures/${p}.json').readAsStringSync(encoding: utf8));
 
     group('(valid case)', () {
       (fixtures['valid'] as List<dynamic>).forEach((f) {
@@ -158,14 +158,14 @@ PaymentData _preformPaymentData(dynamic x) {
       redeem: redeem);
 }
 
-NETWORKS.NetworkType _preformNetwork(dynamic x) {
+networks.NetworkType _preformNetwork(dynamic x) {
   if (x['network'] == 'testnet') {
-    return NETWORKS.testnet;
+    return networks.testnet;
   }
   if (x['redeem'] != null && x['redeem']['network'] == 'testnet') {
-    return NETWORKS.testnet;
+    return networks.testnet;
   }
-  return NETWORKS.bitcoin;
+  return networks.bitcoin;
 }
 
 PaymentData _from(String path, PaymentData paymentData, [PaymentData result]) {

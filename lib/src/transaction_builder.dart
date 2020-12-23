@@ -17,14 +17,14 @@ class TransactionBuilder {
   int maximumFeeRate;
   List<Input> _inputs;
   Transaction _tx;
-  Map _prevTxSet = {};
+  final Map _prevTxSet = {};
 
   TransactionBuilder({NetworkType network, int maximumFeeRate}) {
     this.network = network ?? bitcoin;
     this.maximumFeeRate = maximumFeeRate ?? 2500;
-    this._inputs = [];
-    this._tx = Transaction();
-    this._tx.version = 2;
+    _inputs = [];
+    _tx = Transaction();
+    _tx.version = 2;
   }
 
   List<Input> get inputs => _inputs;
@@ -60,17 +60,19 @@ class TransactionBuilder {
     return txb;
   }
 
-  setVersion(int version) {
-    if (version < 0 || version > 0xFFFFFFFF)
+  void setVersion(int version) {
+    if (version < 0 || version > 0xFFFFFFFF) {
       throw ArgumentError('Expected Uint32');
+    }
     _tx.version = version;
   }
 
   setLockTime(int locktime) {
-    if (locktime < 0 || locktime > 0xFFFFFFFF)
+    if (locktime < 0 || locktime > 0xFFFFFFFF) {
       throw ArgumentError('Expected Uint32');
+    }
     // if any signatures exist, throw
-    if (this._inputs.map((input) {
+    if (_inputs.map((input) {
       if (input.signatures == null) return false;
       return input.signatures.map((s) {
         return s != null;
@@ -84,7 +86,7 @@ class TransactionBuilder {
   int addOutput(dynamic data, int value) {
     var scriptPubKey;
     if (data is String) {
-      scriptPubKey = Address.addressToOutputScript(data, this.network);
+      scriptPubKey = Address.addressToOutputScript(data, network);
     } else if (data is Uint8List) {
       scriptPubKey = data;
     } else {
@@ -130,12 +132,14 @@ class TransactionBuilder {
     // TODO checkSignArgs
 
     if (keyPair.network != null &&
-        keyPair.network.toString().compareTo(network.toString()) != 0)
+        keyPair.network.toString().compareTo(network.toString()) != 0) {
       throw ArgumentError('Inconsistent network');
+    }
     if (vin >= _inputs.length) throw ArgumentError('No input at index: $vin');
     hashType = hashType ?? SIGHASH_ALL;
-    if (this._needsOutputs(hashType))
+    if (_needsOutputs(hashType)) {
       throw ArgumentError('Transaction needs outputs');
+    }
     final input = _inputs[vin];
     final ourPubKey = keyPair.publicKey;
 
@@ -203,7 +207,7 @@ class TransactionBuilder {
           input.signatures = [null];
           input.pubkeys = [ourPubKey];
           input.signScript =
-              P2PKH(data: PaymentData(pubkey: ourPubKey), network: this.network)
+              P2PKH(data: PaymentData(pubkey: ourPubKey), network: network)
                   .data
                   .output;
         } else if (type == SCRIPT_TYPES['P2PKH']) {
@@ -225,12 +229,10 @@ class TransactionBuilder {
     }
     var signatureHash;
     if (input.hasWitness) {
-      signatureHash = this
-          ._tx
-          .hashForWitnessV0(vin, input.signScript, input.value, hashType);
-    } else {
       signatureHash =
-          this._tx.hashForSignature(vin, input.signScript, hashType);
+          _tx.hashForWitnessV0(vin, input.signScript, input.value, hashType);
+    } else {
+      signatureHash = _tx.hashForSignature(vin, input.signScript, hashType);
     }
 
     // enforce in order signing of public keys
@@ -238,8 +240,9 @@ class TransactionBuilder {
     for (var i = 0; i < input.pubkeys.length; i++) {
       if (HEX.encode(ourPubKey).compareTo(HEX.encode(input.pubkeys[i])) != 0)
         continue;
-      if (input.signatures[i] != null)
+      if (input.signatures[i] != null) {
         throw ArgumentError('Signature already exists');
+      }
       final signature = keyPair.sign(signatureHash);
       input.signatures[i] = bscript.encodeSignature(signature, hashType);
       signed = true;
@@ -365,7 +368,7 @@ class TransactionBuilder {
         input.pubkeys != null &&
         input.signatures != null &&
         input.signatures.length == input.pubkeys.length &&
-        input.pubkeys.length > 0 &&
+        input.pubkeys.isNotEmpty &&
         (input.hasWitness == false || input.value != null);
   }
 
@@ -376,8 +379,9 @@ class TransactionBuilder {
       throw ArgumentError('coinbase inputs not supported');
     }
     final prevTxOut = '$txHash:$vout';
-    if (_prevTxSet[prevTxOut] != null)
+    if (_prevTxSet[prevTxOut] != null) {
       throw ArgumentError('Duplicate TxOut: ' + prevTxOut);
+    }
 
     // if an input value was given, retain it
     if (options.script != null) {
@@ -392,7 +396,7 @@ class TransactionBuilder {
     if (input.prevOutScript == null && options.prevOutScript != null) {
       if (input.pubkeys == null && input.signatures == null) {
         var expanded = Output.expandOutput(options.prevOutScript);
-        if (expanded.pubkeys != null && !expanded.pubkeys.isEmpty) {
+        if (expanded.pubkeys != null && expanded.pubkeys.isNotEmpty) {
           input.pubkeys = expanded.pubkeys;
           input.signatures = expanded.signatures;
         }

@@ -1,4 +1,4 @@
-import 'package:bitcoindart/src/models/networks.dart' as NETWORKS;
+import 'package:bitcoindart/src/models/networks.dart' as networks;
 import 'package:bitcoindart/src/ecpair.dart' show ECPair;
 import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bitcoindart/src/payments/p2sh.dart' show P2SH;
@@ -8,9 +8,9 @@ import 'package:pointycastle/digests/sha256.dart';
 import 'dart:convert';
 import 'package:test/test.dart';
 
-NETWORKS.NetworkType litecoin = NETWORKS.NetworkType(
+networks.NetworkType litecoin = networks.NetworkType(
     messagePrefix: '\x19Litecoin Signed Message:\n',
-    bip32: NETWORKS.Bip32Type(public: 0x019da462, private: 0x019d9cfe),
+    bip32: networks.Bip32Type(public: 0x019da462, private: 0x019d9cfe),
     pubKeyHash: 0x30,
     scriptHash: 0x32,
     wif: 0xb0);
@@ -43,7 +43,7 @@ void main() {
       expect(address, '19AAjaTUbRjQCMuVczepkoPswiZRhjtg31');
     });
     test('can generate a Testnet address', () {
-      final testnet = NETWORKS.testnet;
+      final testnet = networks.testnet;
       final keyPair = ECPair.makeRandom(network: testnet, rng: rng);
       final wif = keyPair.toWIF();
       final address =
@@ -71,7 +71,7 @@ void main() {
       expect(address, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4');
     });
     test('can generate a SegWit Testnets address', () {
-      final testnet = NETWORKS.testnet;
+      final testnet = networks.testnet;
       final keyPair = ECPair.fromWIF(
           'cPaJYBMDLjQp5gSUHnBfhX4Rgj95ekBS6oBttwQLw3qfsKKcDfuB');
       final address =

@@ -12,10 +12,10 @@ import 'package:bitcoindart/src/utils/script.dart' as bscript;
 import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bitcoindart/src/payments/p2pkh.dart';
 
-final NETWORKS = {'bitcoin': bitcoin, 'testnet': testnet};
+final networks = {'bitcoin': bitcoin, 'testnet': testnet};
 
 TransactionBuilder constructSign(f, TransactionBuilder txb) {
-  final network = NETWORKS[f['network']];
+  final network = networks[f['network']];
   final inputs = f['inputs'] as List<dynamic>;
   for (var i = 0; i < inputs.length; i++) {
     if (inputs[i]['signs'] == null) continue;
@@ -44,7 +44,7 @@ TransactionBuilder constructSign(f, TransactionBuilder txb) {
 }
 
 TransactionBuilder construct(f, [bool dontSign]) {
-  final network = NETWORKS[f['network']];
+  final network = networks[f['network']];
   final txb = TransactionBuilder(network: network);
   if (f['version'] != null) txb.setVersion(f['version']);
   if (f['locktime'] != null) txb.setLockTime(f['locktime']);
@@ -94,7 +94,7 @@ void main() {
     group('fromTransaction', () {
       (fixtures['valid']['build'] as List<dynamic>).forEach((f) {
         test('returns TransactionBuilder, with ${f['description']}', () {
-          final network = NETWORKS[f['network'] ?? 'bitcoin'];
+          final network = networks[f['network'] ?? 'bitcoin'];
           final tx = Transaction.fromHex(f['txHex']);
           final txb = TransactionBuilder.fromTransaction(tx, network);
           final txAfter =
@@ -295,7 +295,7 @@ void main() {
               inputs[i]['signs'] as List<dynamic>
                 ..forEach((sign) {
                   final keyPairNetwork =
-                      NETWORKS[sign['network'] ?? f['network']];
+                      networks[sign['network'] ?? f['network']];
                   final keyPair2 =
                       ECPair.fromWIF(sign['keyPair'], network: keyPairNetwork);
                   if (sign['throws'] != null && sign['throws']) {
