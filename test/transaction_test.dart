@@ -3,12 +3,12 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:hex/hex.dart';
 import 'dart:typed_data';
-import '../lib/src/utils/script.dart' as bscript;
-import '../lib/src/transaction.dart';
+import 'package:bitcoindart/src/utils/script.dart' as bscript;
+import 'package:bitcoindart/src/transaction.dart';
 
-main() {
-  final fixtures = json.decode(new File('test/fixtures/transaction.json')
-      .readAsStringSync(encoding: utf8));
+void main() {
+  final fixtures = json.decode(
+      File('test/fixtures/transaction.json').readAsStringSync(encoding: utf8));
   final valids = (fixtures['valid'] as List<dynamic>);
 
   group('Transaction', () {
@@ -35,12 +35,12 @@ main() {
     group('toBuffer/toHex', () {
       valids.forEach((f) {
         test('exports ${f['description']} (${f['id']})', () {
-          Transaction actual = fromRaw(f['raw'], false);
+          final actual = fromRaw(f['raw'], false);
           expect(actual.toHex(), f['hex']);
         });
         if (f['whex'] != null && f['whex'] != '') {
           test('exports ${f['description']} (${f['id']}) as witness', () {
-            Transaction actual = fromRaw(f['raw'], true);
+            final actual = fromRaw(f['raw'], true);
             expect(actual.toHex(), f['whex']);
           });
         }
@@ -65,19 +65,19 @@ main() {
             'ffffffff00ffff000000000000000000000000000000000000000000101010ff');
       });
       test('returns an index', () {
-        final tx = new Transaction();
+        final tx = Transaction();
         expect(tx.addInput(prevTxHash, 0), 0);
         expect(tx.addInput(prevTxHash, 0), 1);
       });
       test('defaults to empty script, and 0xffffffff SEQUENCE number', () {
-        final tx = new Transaction();
+        final tx = Transaction();
         tx.addInput(prevTxHash, 0);
         expect(tx.ins[0].script.length, 0);
         expect(tx.ins[0].sequence, 0xffffffff);
       });
       (fixtures['invalid']['addInput'] as List<dynamic>).forEach((f) {
         test('throws on ' + f['exception'], () {
-          final tx = new Transaction();
+          final tx = Transaction();
           final hash = HEX.decode(f['hash']);
           try {
             expect(tx.addInput(hash, f['index']), isArgumentError);
@@ -89,13 +89,13 @@ main() {
     });
 
     test('addOutput returns an index', () {
-      final tx = new Transaction();
-      expect(tx.addOutput(new Uint8List(0), 0), 0);
-      expect(tx.addOutput(new Uint8List(0), 0), 1);
+      final tx = Transaction();
+      expect(tx.addOutput(Uint8List(0), 0), 0);
+      expect(tx.addOutput(Uint8List(0), 0), 1);
     });
 
     group('getHash/getId', () {
-      verify(f) {
+      void verify(f) {
         test('should return the id for ${f['id']} (${f['description']})', () {
           final txHex =
               (f['whex'] != null && f['whex'] != '') ? f['whex'] : f['hex'];
@@ -109,7 +109,7 @@ main() {
     });
 
     group('isCoinbase', () {
-      verify(f) {
+      void verify(f) {
         test(
             'should return ${f['coinbase']} for ${f['id']} (${f['description']})',
             () {
@@ -137,7 +137,7 @@ main() {
   });
 }
 
-importExport(dynamic f) {
+void importExport(dynamic f) {
   final id = f['id'] ?? f['hash'];
   final txHex = f['hex'] ?? f['txHex'];
   test('imports ${f['description']} ($id)', () {
@@ -147,7 +147,7 @@ importExport(dynamic f) {
 }
 
 Transaction fromRaw(raw, [isWitness]) {
-  final tx = new Transaction();
+  final tx = Transaction();
   tx.version = raw['version'];
   tx.locktime = raw['locktime'];
 

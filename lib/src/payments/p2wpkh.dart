@@ -25,7 +25,7 @@ class P2WPKH {
         data.hash == null &&
         data.output == null &&
         data.pubkey == null &&
-        data.witness == null) throw new ArgumentError('Not enough data');
+        data.witness == null) throw ArgumentError('Not enough data');
 
     data.name = 'p2wpkh';
 
@@ -41,7 +41,7 @@ class P2WPKH {
       if (data.output.length != 22 ||
           data.output[0] != OPS['OP_0'] ||
           data.output[1] != 20) // 0x14
-        throw new ArgumentError('Output is invalid');
+        throw ArgumentError('Output is invalid');
       if (data.hash == null) {
         data.hash = data.output.sublist(2);
       }
@@ -54,12 +54,11 @@ class P2WPKH {
     }
 
     if (data.witness != null) {
-      if (data.witness.length != 2)
-        throw new ArgumentError('Witness is invalid');
+      if (data.witness.length != 2) throw ArgumentError('Witness is invalid');
       if (!bscript.isCanonicalScriptSignature(data.witness[0]))
-        throw new ArgumentError('Witness has invalid signature');
+        throw ArgumentError('Witness has invalid signature');
       if (!isPoint(data.witness[1]))
-        throw new ArgumentError('Witness has invalid pubkey');
+        throw ArgumentError('Witness has invalid pubkey');
       _getDataFromWitness(data.witness);
     } else if (data.pubkey != null && data.signature != null) {
       data.witness = [data.signature, data.pubkey];
@@ -94,16 +93,16 @@ class P2WPKH {
     try {
       Segwit _address = segwit.decode(address);
       if (network.bech32 != _address.hrp)
-        throw new ArgumentError('Invalid prefix or Network mismatch');
+        throw ArgumentError('Invalid prefix or Network mismatch');
       if (_address.version != 0) // Only support version 0 now;
-        throw new ArgumentError('Invalid address version');
+        throw ArgumentError('Invalid address version');
       data.hash = Uint8List.fromList(_address.program);
     } on InvalidHrp {
-      throw new ArgumentError('Invalid prefix or Network mismatch');
+      throw ArgumentError('Invalid prefix or Network mismatch');
     } on InvalidProgramLength {
-      throw new ArgumentError('Invalid address data');
+      throw ArgumentError('Invalid address data');
     } on InvalidWitnessVersion {
-      throw new ArgumentError('Invalid witness address version');
+      throw ArgumentError('Invalid witness address version');
     }
   }
 }

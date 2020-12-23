@@ -24,7 +24,7 @@ class P2SH {
         data.hash == null &&
         data.output == null &&
         data.redeem == null &&
-        data.input == null) throw new ArgumentError('Not enough data');
+        data.input == null) throw ArgumentError('Not enough data');
 
     if (data.address != null) {
       _getDataFromAddress(data.address);
@@ -40,11 +40,11 @@ class P2SH {
           data.output[0] != OPS['OP_HASH160'] ||
           data.output[1] != 0x14 ||
           data.output[22] != OPS['OP_EQUAL'])
-        throw new ArgumentError('Output is invalid');
+        throw ArgumentError('Output is invalid');
       final hash = data.output.sublist(2, 22);
 
       if (data.hash != null && data.hash.toString() != hash.toString())
-        throw new ArgumentError('Hash mismatch');
+        throw ArgumentError('Hash mismatch');
       data.hash = hash;
       _getDataFromHash();
     }
@@ -64,7 +64,7 @@ class P2SH {
       if (data.redeem != null &&
           data.redeem.witness != null &&
           !_stacksEqual(data.redeem.witness, data.witness)) {
-        throw new ArgumentError('Witness and redeem.witness mismatch');
+        throw ArgumentError('Witness and redeem.witness mismatch');
       }
     }
   }
@@ -73,21 +73,21 @@ class P2SH {
     Uint8List payload = bs58check.decode(address);
     final version = payload.buffer.asByteData().getUint8(0);
     if (version != network.scriptHash)
-      throw new ArgumentError('Invalid version or Network mismatch');
+      throw ArgumentError('Invalid version or Network mismatch');
 
     final hash = payload.sublist(1);
 
     if (data.hash != null && data.hash.toString() != hash.toString())
-      throw new ArgumentError('Hash mismatch');
+      throw ArgumentError('Hash mismatch');
 
     data.hash = hash;
 
-    if (data.hash.length != 20) throw new ArgumentError('Invalid address');
+    if (data.hash.length != 20) throw ArgumentError('Invalid address');
   }
 
   void _getDataFromHash() {
     if (data.address == null) {
-      final payload = new Uint8List(21);
+      final payload = Uint8List(21);
       payload.buffer.asByteData().setUint8(0, network.scriptHash);
       payload.setRange(1, payload.length, data.hash);
       data.address = bs58check.encode(payload);
@@ -107,7 +107,7 @@ class P2SH {
     if (redeem.output != null) {
       final decompile = bscript.decompile(redeem.output);
       if (decompile.length < 1) {
-        throw new ArgumentError('Redeem.output too short');
+        throw ArgumentError('Redeem.output too short');
       }
 
       // match hash against other sources
@@ -115,22 +115,22 @@ class P2SH {
       if (data.hash != null &&
           data.hash.length > 0 &&
           (data.hash.toString() != hash2.toString()))
-        throw new ArgumentError('Hash mismatch');
+        throw ArgumentError('Hash mismatch');
     }
 
     if (redeem.input != null) {
       final hasInput = redeem.input.length > 0;
       final hasWitness = redeem.witness != null && redeem.witness.length > 0;
       if (!hasInput && !hasWitness) {
-        throw new ArgumentError('Empty input');
+        throw ArgumentError('Empty input');
       }
       if (hasInput && hasWitness) {
-        throw new ArgumentError('Input and witness provided');
+        throw ArgumentError('Input and witness provided');
       }
       if (hasInput) {
         final richunks = bscript.decompile(redeem.input);
         if (!bscript.isPushOnly(richunks))
-          throw new ArgumentError('Non push-only scriptSig');
+          throw ArgumentError('Non push-only scriptSig');
       }
     }
   }
@@ -161,9 +161,9 @@ class P2SH {
   _getDataFromInput() {
     final chunks = _chunks();
     if (chunks == null || chunks.length < 1)
-      throw new ArgumentError('Input too short');
+      throw ArgumentError('Input too short');
 
-    if (_redeem().output == null) throw new ArgumentError('Input is invalid');
+    if (_redeem().output == null) throw ArgumentError('Input is invalid');
 
     if (data.redeem == null) {
       data.redeem = _redeem();
@@ -179,7 +179,7 @@ class P2SH {
     final output = chunks[chunks.length - 1] is Uint8List
         ? chunks[chunks.length - 1]
         : null;
-    return new PaymentData(
+    return PaymentData(
       output: output,
       input: bscript.compile(chunks.sublist(0, chunks.length - 1)),
       witness: data.witness ?? [],

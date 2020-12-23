@@ -13,21 +13,21 @@ import 'dart:typed_data';
 dynamic getPayment({String type, dynamic data, dynamic network}) {
   switch (type) {
     case 'p2pkh':
-      return new P2PKH(data: data, network: network);
+      return P2PKH(data: data, network: network);
     case 'p2sh':
-      return new P2SH(data: data, network: network);
+      return P2SH(data: data, network: network);
     case 'p2wpkh':
-      return new P2WPKH(data: data, network: network);
+      return P2WPKH(data: data, network: network);
   }
 }
 
-main() {
+void main() {
   ['p2pkh', 'p2sh', 'p2wpkh'].forEach((p) {
     final fixtures = json.decode(
-        new File("./test/fixtures/${p}.json").readAsStringSync(encoding: utf8));
+        File("./test/fixtures/${p}.json").readAsStringSync(encoding: utf8));
 
     group('(valid case)', () {
-      (fixtures["valid"] as List<dynamic>).forEach((f) {
+      (fixtures['valid'] as List<dynamic>).forEach((f) {
         test(f['description'] + ' as expected', () {
           final arguments = _preformPaymentData(f['arguments']);
           final network = _preformNetwork(f['arguments']);
@@ -41,7 +41,7 @@ main() {
     });
 
     group('(invalid case)', () {
-      (fixtures["invalid"] as List<dynamic>).forEach((f) {
+      (fixtures['invalid'] as List<dynamic>).forEach((f) {
         test(
             'throws ' +
                 f['exception'] +
@@ -68,7 +68,7 @@ main() {
         final detail = _preformPaymentData(f);
         final disabled = {};
         if (f['disabled'] != null) {
-          (f["disabled"] as List<dynamic>).forEach((k) {
+          (f['disabled'] as List<dynamic>).forEach((k) {
             disabled[k] = true;
           });
         }
@@ -124,7 +124,9 @@ PaymentData _preformPaymentData(dynamic x) {
       : null;
   final output = x['output'] != null
       ? bscript.fromASM(x['output'])
-      : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
+      : x['outputHex'] != null
+          ? HEX.decode(x['outputHex'])
+          : null;
   final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
   final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
 
@@ -145,7 +147,7 @@ PaymentData _preformPaymentData(dynamic x) {
           .toList();
     }
   }
-  return new PaymentData(
+  return PaymentData(
       address: address,
       hash: hash,
       input: input,
@@ -156,7 +158,7 @@ PaymentData _preformPaymentData(dynamic x) {
       redeem: redeem);
 }
 
-_preformNetwork(dynamic x) {
+NETWORKS.NetworkType _preformNetwork(dynamic x) {
   if (x['network'] == 'testnet') {
     return NETWORKS.testnet;
   }
@@ -188,7 +190,7 @@ PaymentData _from(String path, PaymentData paymentData, [PaymentData result]) {
   return result;
 }
 
-_equateBase(PaymentData paymentData, dynamic expected) {
+void _equateBase(PaymentData paymentData, dynamic expected) {
   if (expected['output'] != null) {
     expect(tryASM(paymentData.output), tryASM(expected['output']));
   }
@@ -200,7 +202,8 @@ _equateBase(PaymentData paymentData, dynamic expected) {
   }
 }
 
-_equate(PaymentData paymentData, dynamic expected, [PaymentData arguments]) {
+void _equate(PaymentData paymentData, dynamic expected,
+    [PaymentData arguments]) {
   _equateBase(paymentData, expected);
 
   if (expected['redeem'] != null) {
@@ -224,7 +227,7 @@ _equate(PaymentData paymentData, dynamic expected, [PaymentData arguments]) {
   }
 }
 
-tryHex(dynamic x) {
+dynamic tryHex(dynamic x) {
   if (x is Uint8List) {
     return HEX.encode(x);
   }
@@ -234,7 +237,7 @@ tryHex(dynamic x) {
   return x;
 }
 
-tryASM(dynamic x) {
+dynamic tryASM(dynamic x) {
   if (x is List<dynamic>) {
     return bscript.toASM(x);
   }

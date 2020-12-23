@@ -4,7 +4,7 @@ import 'dart:typed_data';
 Uint8List encode(int number, [Uint8List buffer, int offset]) {
   if (!isUint(number, 53)) ;
 
-  buffer = buffer ?? new Uint8List(encodingLength(number));
+  buffer = buffer ?? Uint8List(encodingLength(number));
   offset = offset ?? 0;
   ByteData bytes = buffer.buffer.asByteData();
   // 8 bit

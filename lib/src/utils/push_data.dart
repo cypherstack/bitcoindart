@@ -37,7 +37,7 @@ EncodedPushData encode(Uint8List buffer, number, offset) {
     buffer.buffer.asByteData().setUint32(offset + 1, number, Endian.little);
   }
 
-  return new EncodedPushData(size: size, buffer: buffer);
+  return EncodedPushData(size: size, buffer: buffer);
 }
 
 DecodedPushData decode(Uint8List bf, int offset) {
@@ -65,8 +65,7 @@ DecodedPushData decode(Uint8List bf, int offset) {
     // 32 bit
   } else {
     if (offset + 5 > buffer.lengthInBytes) return null;
-    if (opcode != OPS['OP_PUSHDATA4'])
-      throw new ArgumentError('Unexpected opcode');
+    if (opcode != OPS['OP_PUSHDATA4']) throw ArgumentError('Unexpected opcode');
 
     number = buffer.asByteData().getUint32(offset + 1);
     size = 5;

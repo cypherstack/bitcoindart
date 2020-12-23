@@ -24,8 +24,8 @@ rngKeybag(int number) {
 }
 
 Uint8List hash160(Uint8List buffer) {
-  Uint8List _tmp = new SHA256Digest().process(buffer);
-  return new RIPEMD160Digest().process(_tmp);
+  Uint8List _tmp = SHA256Digest().process(buffer);
+  return RIPEMD160Digest().process(_tmp);
 }
 
 // 通过原始方式创建地址
@@ -37,7 +37,7 @@ createAddressInOriginalWay() {
   var hash = hash160(keyPair.publicKey);
   print(hash);
   print(hash.length);
-  final payload = new Uint8List(21);
+  final payload = Uint8List(21);
   payload.buffer.asByteData().setUint8(0, 0x00);
   payload.setRange(1, payload.length, hash);
   print(payload);
@@ -49,7 +49,7 @@ createAddress(Function rng) {
   final keyPair = ECPair.makeRandom(rng: rng);
   final wif = keyPair.toWIF();
   final address =
-      new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey)).data.address;
+      P2PKH(data: PaymentData(pubkey: keyPair.publicKey)).data.address;
   print(wif);
   print(address);
 
@@ -64,9 +64,9 @@ createTransaction() {
   final alice =
       ECPair.fromWIF('L2uPYXe17xSTqbCjZvL2DsyXPCbXspvcu5mHLDYUgzdUbZGSKrSr');
   final address2 =
-      new P2PKH(data: new PaymentData(pubkey: alice.publicKey)).data.address;
+      P2PKH(data: PaymentData(pubkey: alice.publicKey)).data.address;
   print(address2);
-  final txb = new TransactionBuilder();
+  final txb = TransactionBuilder();
 
   txb.setVersion(2);
   txb.addInput(
@@ -88,10 +88,10 @@ Map<String, dynamic> createTestnetAddress(Function rng) {
   final testnet = NETWORKS.testnet;
   final keyPair = ECPair.makeRandom(network: testnet, rng: rng);
   final wif = keyPair.toWIF();
-  final address = new P2PKH(
-          data: new PaymentData(pubkey: keyPair.publicKey), network: testnet)
-      .data
-      .address;
+  final address =
+      P2PKH(data: PaymentData(pubkey: keyPair.publicKey), network: testnet)
+          .data
+          .address;
   print(wif);
   print(address);
 
@@ -104,13 +104,13 @@ Map<String, dynamic> createTestnetAddress(Function rng) {
 createTestnetTransaction(String txHash) {
   final keybag =
       ECPair.fromWIF('cRgnQe9MUu1JznntrLaoQpB476M8PURvXVQB5MHjaqzhL42Cse1T');
-  final address = new P2PKH(
-          data: new PaymentData(pubkey: keybag.publicKey),
+  final address = P2PKH(
+          data: PaymentData(pubkey: keybag.publicKey),
           network: NETWORKS.testnet)
       .data
       .address;
   print(address);
-  final txb = new TransactionBuilder(network: NETWORKS.testnet);
+  final txb = TransactionBuilder(network: NETWORKS.testnet);
 
   txb.setVersion(1);
   txb.addInput(

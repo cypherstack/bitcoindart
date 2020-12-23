@@ -15,7 +15,7 @@ void main() {
           xpriv,
           bip32.NetworkType(
               wif: testnet.wif,
-              bip32: new bip32.Bip32Type(
+              bip32: bip32.Bip32Type(
                   public: testnet.bip32.public,
                   private: testnet.bip32.private)));
       expect(
@@ -88,7 +88,7 @@ void main() {
 }
 
 String getAddress(node, [network]) {
-  return P2PKH(data: new PaymentData(pubkey: node.publicKey), network: network)
+  return P2PKH(data: PaymentData(pubkey: node.publicKey), network: network)
       .data
       .address;
 }

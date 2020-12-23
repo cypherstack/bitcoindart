@@ -9,7 +9,7 @@ Uint8List magicHash(String message, [NetworkType network]) {
   Uint8List messagePrefix = utf8.encode(network.messagePrefix);
   int messageVISize = encodingLength(message.length);
   int length = messagePrefix.length + messageVISize + message.length;
-  Uint8List buffer = new Uint8List(length);
+  Uint8List buffer = Uint8List(length);
   buffer.setRange(0, messagePrefix.length, messagePrefix);
   encode(message.length, buffer, messagePrefix.length);
   buffer.setRange(

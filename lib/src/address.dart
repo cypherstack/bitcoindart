@@ -28,16 +28,16 @@ class Address {
     }
     if (decodeBase58 != null) {
       if (decodeBase58[0] == network.pubKeyHash) {
-        return P2PKH(data: new PaymentData(address: address), network: network)
+        return P2PKH(data: PaymentData(address: address), network: network)
             .data
             .output;
       }
       if (decodeBase58[0] == network.scriptHash) {
-        return P2SH(data: new PaymentData(address: address), network: network)
+        return P2SH(data: PaymentData(address: address), network: network)
             .data
             .output;
       }
-      throw new ArgumentError('Invalid version or Network mismatch');
+      throw ArgumentError('Invalid version or Network mismatch');
     } else {
       try {
         decodeBech32 = segwit.decode(address);
@@ -46,14 +46,14 @@ class Address {
       }
       if (decodeBech32 != null) {
         if (network.bech32 != decodeBech32.hrp)
-          throw new ArgumentError('Invalid prefix or Network mismatch');
+          throw ArgumentError('Invalid prefix or Network mismatch');
         if (decodeBech32.version != 0)
-          throw new ArgumentError('Invalid address version');
-        P2WPKH p2wpkh = new P2WPKH(
-            data: new PaymentData(address: address), network: network);
+          throw ArgumentError('Invalid address version');
+        P2WPKH p2wpkh =
+            P2WPKH(data: PaymentData(address: address), network: network);
         return p2wpkh.data.output;
       }
     }
-    throw new ArgumentError(address + ' has no matching Script');
+    throw ArgumentError(address + ' has no matching Script');
   }
 }

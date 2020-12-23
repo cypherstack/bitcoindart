@@ -1,17 +1,17 @@
-import 'package:test/test.dart';
-import 'package:hex/hex.dart';
 import 'dart:typed_data';
 import 'dart:io';
 import 'dart:convert';
-import '../lib/src/ecpair.dart' show ECPair;
-import '../lib/src/models/networks.dart' as NETWORKS;
+import 'package:test/test.dart';
+import 'package:hex/hex.dart';
+import 'package:bitcoindart/src/ecpair.dart' show ECPair;
+import 'package:bitcoindart/src/models/networks.dart' as NETWORKS;
 
 final ONE = HEX
     .decode('0000000000000000000000000000000000000000000000000000000000000001');
 
-main() {
+void main() {
   final fixtures = json.decode(
-      new File('test/fixtures/ecpair.json').readAsStringSync(encoding: utf8));
+      File('test/fixtures/ecpair.json').readAsStringSync(encoding: utf8));
   group('ECPair', () {
     group('fromPrivateKey', () {
       test('defaults to compressed', () {
@@ -107,8 +107,8 @@ main() {
         expect(keyPair.network, NETWORKS.testnet);
       });
       test('throws if d is bad length', () {
-        rng(int number) {
-          return new Uint8List(28);
+        Uint8List rng(int number) {
+          return Uint8List(28);
         }
 
         try {
@@ -121,7 +121,7 @@ main() {
     group('.network', () {
       (fixtures['valid'] as List).forEach((f) {
         test('return ${f['network']} for ${f['WIF']}', () {
-          NETWORKS.NetworkType network = _getNetwork(f);
+          final network = _getNetwork(f);
           final keyPair = ECPair.fromWIF(f['WIF']);
           expect(keyPair.network, network);
         });

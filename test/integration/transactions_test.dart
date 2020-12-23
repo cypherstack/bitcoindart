@@ -1,17 +1,17 @@
 import 'package:test/test.dart';
 
-import '../../lib/src/ecpair.dart';
-import '../../lib/src/transaction_builder.dart';
-import '../../lib/src/models/networks.dart' as NETWORKS;
-import '../../lib/src/payments/p2wpkh.dart' show P2WPKH;
-import '../../lib/src/payments/index.dart' show PaymentData;
+import 'package:bitcoindart/src/ecpair.dart';
+import 'package:bitcoindart/src/transaction_builder.dart';
+import 'package:bitcoindart/src/models/networks.dart' as NETWORKS;
+import 'package:bitcoindart/src/payments/p2wpkh.dart' show P2WPKH;
+import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 
-main() {
+void main() {
   group('bitcoinjs-lib (transactions)', () {
     test('can create a 1-to-1 Transaction', () {
       final alice = ECPair.fromWIF(
           'L1uyy5qTuGrVXrmrsvHWHgVzW9kKdrp27wBC7Vs6nZDTF2BRUVwy');
-      final txb = new TransactionBuilder();
+      final txb = TransactionBuilder();
 
       txb.setVersion(1);
       txb.addInput(
@@ -33,7 +33,7 @@ main() {
       final bob = ECPair.fromWIF(
           'KwcN2pT3wnRAurhy7qMczzbkpY5nXMW2ubh696UBc1bcwctTx26z');
 
-      final txb = new TransactionBuilder();
+      final txb = TransactionBuilder();
       txb.setVersion(1);
       txb.addInput(
           'b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c',
@@ -62,11 +62,10 @@ main() {
     test('can create a Transaction, w/ a P2SH(P2WPKH) input', () {
       final alice = ECPair.fromWIF(
           'L2FroWqrUgsPpTMhpXcAFnVDLPTToDbveh3bhDaU4jhe7Cw6YujN');
-      final p2wpkh =
-          new P2WPKH(data: new PaymentData(pubkey: alice.publicKey)).data;
+      final p2wpkh = P2WPKH(data: PaymentData(pubkey: alice.publicKey)).data;
       final redeemScript = p2wpkh.output;
 
-      final txb = new TransactionBuilder();
+      final txb = TransactionBuilder();
       txb.setVersion(1);
       txb.addInput(
           'ce5986f6d73d7855351fea94c7cf9eb1a4513bf5e004178835d8e2adb9a0f95d',
@@ -87,11 +86,11 @@ main() {
       final alice = ECPair.fromWIF(
           'cUNfunNKXNNJDvUvsjxz5tznMR6ob1g5K6oa4WGbegoQD3eqf4am',
           network: NETWORKS.testnet);
-      final p2wpkh = new P2WPKH(
-              data: new PaymentData(pubkey: alice.publicKey),
+      final p2wpkh = P2WPKH(
+              data: PaymentData(pubkey: alice.publicKey),
               network: NETWORKS.testnet)
           .data;
-      final txb = new TransactionBuilder(network: NETWORKS.testnet);
+      final txb = TransactionBuilder(network: NETWORKS.testnet);
       txb.setVersion(1);
       txb.addInput(
           '53676626f5042d42e15313492ab7e708b87559dc0a8c74b7140057af51a2ed5b',

@@ -3,24 +3,24 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:hex/hex.dart';
-import '../lib/src/models/networks.dart';
-import '../lib/src/ecpair.dart';
-import '../lib/src/transaction.dart';
-import '../lib/src/address.dart';
-import '../lib/src/transaction_builder.dart';
-import '../lib/src/utils/script.dart' as bscript;
-import '../lib/src/payments/index.dart' show PaymentData;
-import '../lib/src/payments/p2pkh.dart';
+import 'package:bitcoindart/src/models/networks.dart';
+import 'package:bitcoindart/src/ecpair.dart';
+import 'package:bitcoindart/src/transaction.dart';
+import 'package:bitcoindart/src/address.dart';
+import 'package:bitcoindart/src/transaction_builder.dart';
+import 'package:bitcoindart/src/utils/script.dart' as bscript;
+import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
+import 'package:bitcoindart/src/payments/p2pkh.dart';
 
 final NETWORKS = {'bitcoin': bitcoin, 'testnet': testnet};
 
-constructSign(f, TransactionBuilder txb) {
+TransactionBuilder constructSign(f, TransactionBuilder txb) {
   final network = NETWORKS[f['network']];
   final inputs = f['inputs'] as List<dynamic>;
   for (var i = 0; i < inputs.length; i++) {
     if (inputs[i]['signs'] == null) continue;
     (inputs[i]['signs'] as List<dynamic>).forEach((sign) {
-      ECPair keyPair = ECPair.fromWIF(sign['keyPair'], network: network);
+      final keyPair = ECPair.fromWIF(sign['keyPair'], network: network);
       var redeemScript, witnessScript;
 
       if (sign['redeemScript'] != null) {
@@ -45,17 +45,18 @@ constructSign(f, TransactionBuilder txb) {
 
 TransactionBuilder construct(f, [bool dontSign]) {
   final network = NETWORKS[f['network']];
-  final txb = new TransactionBuilder(network: network);
+  final txb = TransactionBuilder(network: network);
   if (f['version'] != null) txb.setVersion(f['version']);
   if (f['locktime'] != null) txb.setLockTime(f['locktime']);
   (f['inputs'] as List<dynamic>).forEach((input) {
     var prevTx;
     if (input['txRaw'] != null) {
       final constructed = construct(input['txRaw']);
-      if (input['txRaw']['incomplete'])
+      if (input['txRaw']['incomplete']) {
         prevTx = constructed.buildIncomplete();
-      else
+      } else {
         prevTx = constructed.build();
+      }
     } else if (input['txHex'] != null) {
       prevTx = Transaction.fromHex(input['txHex']);
     } else {
@@ -78,10 +79,9 @@ TransactionBuilder construct(f, [bool dontSign]) {
   return constructSign(f, txb);
 }
 
-main() {
-  final fixtures = json.decode(
-      new File('test/fixtures/transaction_builder.json')
-          .readAsStringSync(encoding: utf8));
+void main() {
+  final fixtures = json.decode(File('test/fixtures/transaction_builder.json')
+      .readAsStringSync(encoding: utf8));
   group('TransactionBuilder', () {
     final keyPair = ECPair.fromPrivateKey(HEX.decode(
         '0000000000000000000000000000000000000000000000000000000000000001'));
@@ -105,7 +105,7 @@ main() {
       });
       (fixtures['valid']['fromTransaction'] as List<dynamic>).forEach((f) {
         test('returns TransactionBuilder, with ${f['description']}', () {
-          final tx = new Transaction();
+          final tx = Transaction();
           f['inputs'] as List<dynamic>
             ..forEach((input) {
               final txHash2 = Uint8List.fromList(
@@ -146,7 +146,7 @@ main() {
     group('addInput', () {
       TransactionBuilder txb;
       setUp(() {
-        txb = new TransactionBuilder();
+        txb = TransactionBuilder();
       });
       test('accepts a txHash, index [and sequence number]', () {
         final vin = txb.addInput(txHash, 1, 54);
@@ -167,7 +167,7 @@ main() {
         expect(txb.inputs[0].prevOutScript, scripts.elementAt(1));
       });
       test('accepts a prevTx, index [and sequence number]', () {
-        final prevTx = new Transaction();
+        final prevTx = Transaction();
         prevTx.addOutput(scripts.elementAt(0), 0);
         prevTx.addOutput(scripts.elementAt(1), 1);
 
@@ -201,13 +201,11 @@ main() {
     group('addOutput', () {
       TransactionBuilder txb;
       setUp(() {
-        txb = new TransactionBuilder();
+        txb = TransactionBuilder();
       });
       test('accepts an address string and value', () {
         final address =
-            new P2PKH(data: new PaymentData(pubkey: keyPair.publicKey))
-                .data
-                .address;
+            P2PKH(data: PaymentData(pubkey: keyPair.publicKey)).data.address;
         final vout = txb.addOutput(address, 1000);
         expect(vout, 0);
         final txout = txb.tx.outs[0];
@@ -274,7 +272,7 @@ main() {
     });
     group('setLockTime', () {
       test('throws if if there exist any scriptSigs', () {
-        final txb = new TransactionBuilder();
+        final txb = TransactionBuilder();
         txb.addInput(txHash, 0);
         txb.addOutput(scripts.elementAt(0), 100);
         txb.sign(vin: 0, keyPair: keyPair);
@@ -289,9 +287,7 @@ main() {
     group('sign', () {
       fixtures['invalid']['sign'] as List<dynamic>
         ..forEach((f) {
-          test(
-              'throws ${f['exception']} ${f['description'] != null ? f['description'] : ''}',
-              () {
+          test('throws ${f['exception']} ${f['description'] ?? ''}', () {
             final txb = construct(f, true);
             var threw = false;
             final inputs = f['inputs'] as List;
