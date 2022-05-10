@@ -7,6 +7,9 @@ pubspec.lock
 # Conventional directory for build outputs
 build/
 
+# Conventional directory for test coverage outputs
+coverage/
+
 # Directory created by dartdoc
 doc/api/
 
