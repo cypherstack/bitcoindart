@@ -1,15 +1,17 @@
 import 'dart:typed_data';
+
 import 'package:hex/hex.dart';
-import 'payments/index.dart' show PaymentData;
-import 'payments/p2pkh.dart' show P2PKH;
-import 'payments/p2pk.dart' show P2PK;
-import 'payments/p2wpkh.dart' show P2WPKH;
-import 'payments/p2sh.dart' show P2SH;
-import 'crypto.dart' as bcrypto;
+
 import 'classify.dart';
+import 'crypto.dart' as bcrypto;
+import 'payments/index.dart' show PaymentData;
+import 'payments/p2pk.dart' show P2PK;
+import 'payments/p2pkh.dart' show P2PKH;
+import 'payments/p2sh.dart' show P2SH;
+import 'payments/p2wpkh.dart' show P2WPKH;
 import 'utils/check_types.dart';
-import 'utils/script.dart' as bscript;
 import 'utils/constants/op.dart';
+import 'utils/script.dart' as bscript;
 import 'utils/varuint.dart' as varuint;
 
 const DEFAULT_SEQUENCE = 0xffffffff;
@@ -256,7 +258,14 @@ class Transaction {
         ins.fold(0, (sum, input) => sum + 40 + varSliceSize(input.script)) +
         outs.fold(0, (sum, output) => sum + 8 + varSliceSize(output.script)) +
         (hasWitness
-            ? ins.fold(0, (sum, input) => sum + vectorSize(input.witness))
+            ? ins.fold(0, (sum, input) {
+                if (input.witness == null) {
+                  input.witness = [];
+                  return sum;
+                } else {
+                  return sum + vectorSize(input.witness);
+                }
+              })
             : 0);
   }
 
