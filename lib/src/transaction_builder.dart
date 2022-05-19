@@ -1,16 +1,18 @@
 import 'dart:typed_data';
-import 'package:meta/meta.dart';
+
 import 'package:hex/hex.dart';
-import 'utils/script.dart' as bscript;
+import 'package:meta/meta.dart';
+
+import 'address.dart';
+import 'classify.dart';
 import 'ecpair.dart';
 import 'models/networks.dart';
-import 'transaction.dart';
-import 'address.dart';
 import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart';
-import 'payments/p2wpkh.dart';
 import 'payments/p2sh.dart';
-import 'classify.dart';
+import 'payments/p2wpkh.dart';
+import 'transaction.dart';
+import 'utils/script.dart' as bscript;
 
 class TransactionBuilder {
   NetworkType network;
@@ -165,7 +167,23 @@ class TransactionBuilder {
         final p2sh =
             P2SH(data: PaymentData(redeem: PaymentData(output: redeemScript)));
         if (input.prevOutScript != null) {
-          // TODO check
+          P2SH p2shAlt;
+          try {
+            p2shAlt = P2SH(data: PaymentData(output: input.prevOutScript));
+          } catch (e) {
+            throw Exception('PrevOutScript must be P2SH');
+          }
+
+          if (p2sh.data.hash.length != p2shAlt.data.hash.length) {
+            throw Exception('Redeem script inconsistent with prevOutScript');
+          } else {
+            for (var i = 0; i < p2sh.data.hash.length; i++) {
+              if (p2sh.data.hash[i] != p2shAlt.data.hash[i]) {
+                throw Exception(
+                    'Redeem script inconsistent with prevOutScript');
+              }
+            }
+          }
         }
         final expanded =
             Output.expandOutput(p2sh.data.redeem.output, ourPubKey);
