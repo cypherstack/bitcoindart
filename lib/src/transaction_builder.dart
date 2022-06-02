@@ -230,7 +230,7 @@ class TransactionBuilder {
                   .data
                   .output;
         } else if (type == SCRIPT_TYPES['P2PKH']) {
-          var prevOutScript = pubkeyToOutputScript(ourPubKey);
+          var prevOutScript = pubkeyToOutputScript(ourPubKey, network);
           input.prevOutType = SCRIPT_TYPES['P2PKH'];
           input.signatures = [null];
           input.pubkeys = [ourPubKey];
@@ -239,7 +239,7 @@ class TransactionBuilder {
           // TODO other type
         }
       } else {
-        var prevOutScript = pubkeyToOutputScript(ourPubKey);
+        var prevOutScript = pubkeyToOutputScript(ourPubKey, network);
         input.prevOutType = SCRIPT_TYPES['P2PKH'];
         input.signatures = [null];
         input.pubkeys = [ourPubKey];
