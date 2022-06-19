@@ -1,4 +1,3 @@
-<a href="https://pub.dartlang.org/packages/bitcoindart"><img alt="pub version" src="https://img.shields.io/pub/v/bitcoindart.svg?style=flat-square"></a>
 
 # bitcoindart
 
