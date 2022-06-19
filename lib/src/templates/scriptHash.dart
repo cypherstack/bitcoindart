@@ -1,8 +1,9 @@
 import 'dart:typed_data';
-import '../utils/script.dart' as bscript;
+
 import './pubkeyhash.dart' as p2pkh;
 import './witnesspubkeyhash.dart' as p2wpkh;
 import '../utils/constants/op.dart';
+import '../utils/script.dart' as bscript;
 
 bool inputCheck(List<dynamic> chunks, bool allowIncomplete) {
   if (chunks.isEmpty) return false;
@@ -13,7 +14,7 @@ bool inputCheck(List<dynamic> chunks, bool allowIncomplete) {
 
   final scriptSigChunks = bscript.decompile(
     bscript.compile(chunks.sublist(0, chunks.length - 1)),
-  );
+  )!;
 
   final redeemScriptChunks = bscript.decompile(lastChunk);
   // is redeemScript a valid script?

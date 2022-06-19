@@ -1,16 +1,17 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:bitcoindart/src/models/networks.dart' as networks;
 import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bitcoindart/src/payments/p2pkh.dart';
 import 'package:bitcoindart/src/payments/p2sh.dart';
 import 'package:bitcoindart/src/payments/p2wpkh.dart';
-import 'package:bitcoindart/src/models/networks.dart' as networks;
-import 'package:test/test.dart';
 import 'package:bitcoindart/src/utils/script.dart' as bscript;
-import 'dart:io';
-import 'dart:convert';
 import 'package:hex/hex.dart';
-import 'dart:typed_data';
+import 'package:test/test.dart';
 
-dynamic getPayment({String type, dynamic data, dynamic network}) {
+dynamic getPayment({required String type, dynamic data, dynamic network}) {
   switch (type) {
     case 'p2pkh':
       return P2PKH(data: data, network: network);
@@ -83,7 +84,7 @@ void main() {
               dependency = [dependency];
             }
 
-            PaymentData args;
+            PaymentData? args;
             dependency.forEach((d) {
               args = _from(d, detail, args);
             });
@@ -108,7 +109,8 @@ void main() {
 
 PaymentData _preformPaymentData(dynamic x) {
   final address = x['address'];
-  final hash = x['hash'] != null ? HEX.decode(x['hash']) : null;
+  final hash =
+      x['hash'] != null ? Uint8List.fromList(HEX.decode(x['hash'])) : null;
   var input;
   if (x['inputHex'] is String) {
     input = HEX.decode(x['inputHex']) as Uint8List;
@@ -124,11 +126,16 @@ PaymentData _preformPaymentData(dynamic x) {
       : null;
   final output = x['output'] != null
       ? bscript.fromASM(x['output'])
-      : x['outputHex'] != null ? HEX.decode(x['outputHex']) : null;
-  final pubkey = x['pubkey'] != null ? HEX.decode(x['pubkey']) : null;
-  final signature = x['signature'] != null ? HEX.decode(x['signature']) : null;
+      : x['outputHex'] != null
+          ? Uint8List.fromList(HEX.decode(x['outputHex']))
+          : null;
+  final pubkey =
+      x['pubkey'] != null ? Uint8List.fromList(HEX.decode(x['pubkey'])) : null;
+  final signature = x['signature'] != null
+      ? Uint8List.fromList(HEX.decode(x['signature']))
+      : null;
 
-  PaymentData redeem;
+  PaymentData? redeem;
 
   if (x['redeem'] != null) {
     redeem = PaymentData();
@@ -166,7 +173,7 @@ networks.NetworkType _preformNetwork(dynamic x) {
   return networks.bitcoin;
 }
 
-PaymentData _from(String path, PaymentData paymentData, [PaymentData result]) {
+PaymentData _from(String path, PaymentData paymentData, [PaymentData? result]) {
   final paths = path.split('.');
 
   result = result ?? PaymentData();
@@ -201,11 +208,11 @@ void _equateBase(PaymentData paymentData, dynamic expected) {
 }
 
 void _equate(PaymentData paymentData, dynamic expected,
-    [PaymentData arguments]) {
+    [PaymentData? arguments]) {
   _equateBase(paymentData, expected);
 
   if (expected['redeem'] != null) {
-    _equateBase(paymentData.redeem, expected['redeem']);
+    _equateBase(paymentData.redeem!, expected['redeem']);
   }
 
   if (expected['name'] != null) {

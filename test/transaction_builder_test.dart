@@ -1,16 +1,17 @@
-import 'package:test/test.dart';
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
-import 'package:hex/hex.dart';
-import 'package:bitcoindart/src/models/networks.dart';
-import 'package:bitcoindart/src/ecpair.dart';
-import 'package:bitcoindart/src/transaction.dart';
+
 import 'package:bitcoindart/src/address.dart';
-import 'package:bitcoindart/src/transaction_builder.dart';
-import 'package:bitcoindart/src/utils/script.dart' as bscript;
+import 'package:bitcoindart/src/ecpair.dart';
+import 'package:bitcoindart/src/models/networks.dart';
 import 'package:bitcoindart/src/payments/index.dart' show PaymentData;
 import 'package:bitcoindart/src/payments/p2pkh.dart';
+import 'package:bitcoindart/src/transaction.dart';
+import 'package:bitcoindart/src/transaction_builder.dart';
+import 'package:bitcoindart/src/utils/script.dart' as bscript;
+import 'package:hex/hex.dart';
+import 'package:test/test.dart';
 
 final networks = {'bitcoin': bitcoin, 'testnet': testnet};
 
@@ -43,7 +44,7 @@ TransactionBuilder constructSign(f, TransactionBuilder txb) {
   return txb;
 }
 
-TransactionBuilder construct(f, [bool dontSign]) {
+TransactionBuilder construct(f, [bool? dontSign]) {
   final network = networks[f['network']];
   final txb = TransactionBuilder(network: network);
   if (f['version'] != null) txb.setVersion(f['version']);
@@ -83,8 +84,8 @@ void main() {
   final fixtures = json.decode(File('test/fixtures/transaction_builder.json')
       .readAsStringSync(encoding: utf8));
   group('TransactionBuilder', () {
-    final keyPair = ECPair.fromPrivateKey(HEX.decode(
-        '0000000000000000000000000000000000000000000000000000000000000001'));
+    final keyPair = ECPair.fromPrivateKey(Uint8List.fromList(HEX.decode(
+        '0000000000000000000000000000000000000000000000000000000000000001')));
     final scripts = [
       '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
       '1cMh228HTCiwS8ZsaakH8A8wze1JR5ZsP'
@@ -122,11 +123,11 @@ void main() {
           final txAfter = f['incomplete'] ? txb.buildIncomplete() : txb.build();
 
           for (var i = 0; i < txAfter.ins.length; i++) {
-            test(bscript.toASM(txAfter.ins[i].script),
+            test(bscript.toASM(txAfter.ins[i].script!),
                 f['inputs'][i]['scriptSigAfter']);
           }
           for (var i = 0; i < txAfter.outs.length; i++) {
-            test(bscript.toASM(txAfter.outs[i].script),
+            test(bscript.toASM(txAfter.outs[i].script!),
                 f['outputs'][i]['script']);
           }
         });
@@ -144,7 +145,7 @@ void main() {
         });
     });
     group('addInput', () {
-      TransactionBuilder txb;
+      late TransactionBuilder txb;
       setUp(() {
         txb = TransactionBuilder();
       });
@@ -199,7 +200,7 @@ void main() {
       });
     });
     group('addOutput', () {
-      TransactionBuilder txb;
+      late TransactionBuilder txb;
       setUp(() {
         txb = TransactionBuilder();
       });

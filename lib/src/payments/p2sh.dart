@@ -1,17 +1,18 @@
 import 'dart:typed_data';
-import 'package:meta/meta.dart';
+
 // import 'package:bip32/src/utils/ecurve.dart' show isPoint;
 import 'package:bs58check/bs58check.dart' as bs58check;
+import 'package:meta/meta.dart';
 
 import '../crypto.dart';
 import '../models/networks.dart';
 import '../payments/index.dart' show PaymentData;
-import '../utils/script.dart' as bscript;
 import '../utils/constants/op.dart';
+import '../utils/script.dart' as bscript;
 
 class P2SH {
-  PaymentData data;
-  NetworkType network;
+  late PaymentData data;
+  late NetworkType network;
   P2SH({@required data, network}) {
     this.network = network ?? bitcoin;
     this.data = data;
@@ -27,7 +28,7 @@ class P2SH {
         data.input == null) throw ArgumentError('Not enough data');
 
     if (data.address != null) {
-      _getDataFromAddress(data.address);
+      _getDataFromAddress(data.address!);
       _getDataFromHash();
     }
 
@@ -36,13 +37,13 @@ class P2SH {
     }
 
     if (data.output != null) {
-      if (data.output.length != 23 ||
-          data.output[0] != OPS['OP_HASH160'] ||
-          data.output[1] != 0x14 ||
-          data.output[22] != OPS['OP_EQUAL']) {
+      if (data.output!.length != 23 ||
+          data.output![0] != OPS['OP_HASH160'] ||
+          data.output![1] != 0x14 ||
+          data.output![22] != OPS['OP_EQUAL']) {
         throw ArgumentError('Output is invalid');
       }
-      final hash = data.output.sublist(2, 22);
+      final hash = data.output!.sublist(2, 22);
 
       if (data.hash != null && data.hash.toString() != hash.toString()) {
         throw ArgumentError('Hash mismatch');
@@ -58,14 +59,14 @@ class P2SH {
     }
 
     if (data.redeem != null) {
-      _checkRedeem(data.redeem);
+      _checkRedeem(data.redeem!);
       _getDataFromRedeem();
     }
 
     if (data.witness != null) {
       if (data.redeem != null &&
-          data.redeem.witness != null &&
-          !_stacksEqual(data.redeem.witness, data.witness)) {
+          data.redeem!.witness != null &&
+          !_stacksEqual(data.redeem!.witness!, data.witness!)) {
         throw ArgumentError('Witness and redeem.witness mismatch');
       }
     }
@@ -86,14 +87,14 @@ class P2SH {
 
     data.hash = hash;
 
-    if (data.hash.length != 20) throw ArgumentError('Invalid address');
+    if (data.hash!.length != 20) throw ArgumentError('Invalid address');
   }
 
   void _getDataFromHash() {
     if (data.address == null) {
       final payload = Uint8List(21);
       payload.buffer.asByteData().setUint8(0, network.scriptHash);
-      payload.setRange(1, payload.length, data.hash);
+      payload.setRange(1, payload.length, data.hash!);
       data.address = bs58check.encode(payload);
     }
 
@@ -104,26 +105,26 @@ class P2SH {
     ]);
   }
 
-  void _checkRedeem(PaymentData redeem) {
+  void _checkRedeem(PaymentData? redeem) {
     // is the redeem output empty/invalid?
-    if (redeem.output != null) {
-      final decompile = bscript.decompile(redeem.output);
-      if (decompile.isEmpty) {
+    if (redeem?.output != null) {
+      final decompile = bscript.decompile(redeem!.output!);
+      if (decompile != null && decompile.isEmpty) {
         throw ArgumentError('Redeem.output too short');
       }
 
       // match hash against other sources
-      final hash2 = hash160(redeem.output);
+      final hash2 = hash160(redeem.output!);
       if (data.hash != null &&
-          data.hash.isNotEmpty &&
-          (data.hash.toString() != hash2.toString())) {
+          data.hash!.isNotEmpty &&
+          (data.hash!.toString() != hash2.toString())) {
         throw ArgumentError('Hash mismatch');
       }
     }
 
-    if (redeem.input != null) {
-      final hasInput = redeem.input.isNotEmpty;
-      final hasWitness = redeem.witness != null && redeem.witness.isNotEmpty;
+    if (redeem?.input != null) {
+      final hasInput = redeem!.input?.isNotEmpty ?? false;
+      final hasWitness = redeem.witness != null && redeem.witness!.isNotEmpty;
       if (!hasInput && !hasWitness) {
         throw ArgumentError('Empty input');
       }
@@ -140,21 +141,21 @@ class P2SH {
   }
 
   void _getDataFromRedeem() {
-    if (data.redeem.output != null) {
-      data.hash = hash160(data.redeem.output);
+    if (data.redeem?.output != null) {
+      data.hash = hash160(data.redeem!.output!);
       _getDataFromHash();
 
-      if (data.redeem.input != null) {
-        var _chunks = bscript.decompile(data.redeem.input);
-        _chunks.add(data.redeem.output);
+      if (data.redeem?.input != null) {
+        var _chunks = bscript.decompile(data.redeem!.input)!;
+        _chunks.add(data.redeem?.output);
         _getDataFromChunk(_chunks);
       }
     }
 
-    data.witness ??= data.redeem.witness ?? [];
+    data.witness ??= data.redeem?.witness ?? [];
   }
 
-  void _getDataFromChunk([List<dynamic> _chunks]) {
+  void _getDataFromChunk([List<dynamic>? _chunks]) {
     if (data.input == null && _chunks != null) {
       data.input = bscript.compile(_chunks);
     }
@@ -171,12 +172,12 @@ class P2SH {
     data.redeem ??= _redeem();
   }
 
-  List<dynamic> _chunks() {
+  List<dynamic>? _chunks() {
     return bscript.decompile(data.input);
   }
 
   PaymentData _redeem() {
-    final chunks = bscript.decompile(data.input);
+    final chunks = bscript.decompile(data.input)!;
     final output = chunks[chunks.length - 1] is Uint8List
         ? chunks[chunks.length - 1]
         : null;

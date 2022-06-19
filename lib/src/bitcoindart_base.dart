@@ -1,34 +1,34 @@
 // TODO: Put public facing types in this file.
 import 'dart:typed_data';
+
+import 'package:bip32/bip32.dart' as bip32;
 import 'package:bitcoindart/src/utils/magic_hash.dart';
 import 'package:hex/hex.dart';
-import 'package:bip32/bip32.dart' as bip32;
+
+import 'ecpair.dart';
 import 'models/networks.dart';
 import 'payments/index.dart' show PaymentData;
 import 'payments/p2pkh.dart';
-import 'ecpair.dart';
-import 'package:meta/meta.dart';
 
 /// Checks if you are awesome. Spoiler: you are.
 class HDWallet {
-  bip32.BIP32 _bip32;
-  P2PKH _p2pkh;
-  String seed;
+  late bip32.BIP32 _bip32;
+  late P2PKH _p2pkh;
+  String? seed;
   NetworkType network;
 
-  String get privKey {
-    if (_bip32 == null) return null;
+  String? get privKey {
+    if (_bip32.privateKey == null) return null;
     try {
-      return HEX.encode(_bip32.privateKey);
+      return HEX.encode(_bip32.privateKey!);
     } catch (_) {
       return null;
     }
   }
 
-  String get pubKey => _bip32 != null ? HEX.encode(_bip32.publicKey) : null;
+  String get pubKey => HEX.encode(_bip32.publicKey);
 
-  String get base58Priv {
-    if (_bip32 == null) return null;
+  String? get base58Priv {
     try {
       return _bip32.toBase58();
     } catch (_) {
@@ -36,10 +36,9 @@ class HDWallet {
     }
   }
 
-  String get base58 => _bip32 != null ? _bip32.neutered().toBase58() : null;
+  String get base58 => _bip32.neutered().toBase58();
 
-  String get wif {
-    if (_bip32 == null) return null;
+  String? get wif {
     try {
       return _bip32.toWIF();
     } catch (_) {
@@ -47,10 +46,9 @@ class HDWallet {
     }
   }
 
-  String get address => _p2pkh != null ? _p2pkh.data.address : null;
+  String? get address => _p2pkh.data.address;
 
-  HDWallet(
-      {@required bip32, @required p2pkh, @required this.network, this.seed}) {
+  HDWallet({required bip32, required p2pkh, required this.network, this.seed}) {
     _bip32 = bip32;
     _p2pkh = p2pkh;
   }
@@ -69,7 +67,7 @@ class HDWallet {
     return HDWallet(bip32: bip32, p2pkh: p2pkh, network: network);
   }
 
-  factory HDWallet.fromSeed(Uint8List seed, {NetworkType network}) {
+  factory HDWallet.fromSeed(Uint8List seed, {NetworkType? network}) {
     network = network ?? bitcoin;
     final seedHex = HEX.encode(seed);
     final wallet = bip32.BIP32.fromSeed(
@@ -84,7 +82,7 @@ class HDWallet {
         bip32: wallet, p2pkh: p2pkh, network: network, seed: seedHex);
   }
 
-  factory HDWallet.fromBase58(String xpub, {NetworkType network}) {
+  factory HDWallet.fromBase58(String xpub, {NetworkType? network}) {
     network = network ?? bitcoin;
     final wallet = bip32.BIP32.fromBase58(
         xpub,
@@ -102,8 +100,12 @@ class HDWallet {
     return _bip32.sign(messageHash);
   }
 
-  bool verify({String message, Uint8List signature}) {
-    var messageHash = magicHash(message);
+  bool verify(
+      {required String message,
+      required Uint8List signature,
+      NetworkType? network}) {
+    network = network ?? bitcoin;
+    var messageHash = magicHash(message, network);
     return _bip32.verify(messageHash, signature);
   }
 }
@@ -112,27 +114,28 @@ class Wallet {
   ECPair _keyPair;
   P2PKH _p2pkh;
 
-  String get privKey =>
-      _keyPair != null ? HEX.encode(_keyPair.privateKey) : null;
+  String? get privKey =>
+      _keyPair.privateKey != null ? HEX.encode(_keyPair.privateKey!) : null;
 
-  String get pubKey => _keyPair != null ? HEX.encode(_keyPair.publicKey) : null;
+  String get pubKey => HEX.encode(_keyPair.publicKey);
 
-  String get wif => _keyPair != null ? _keyPair.toWIF() : null;
+  String get wif => _keyPair.toWIF();
 
-  String get address => _p2pkh != null ? _p2pkh.data.address : null;
+  String? get address => _p2pkh.data.address;
 
   NetworkType network;
 
   Wallet(this._keyPair, this._p2pkh, this.network);
 
-  factory Wallet.random([NetworkType network]) {
+  factory Wallet.random([NetworkType? network]) {
+    network = network ?? bitcoin;
     final _keyPair = ECPair.makeRandom(network: network);
     final _p2pkh =
         P2PKH(data: PaymentData(pubkey: _keyPair.publicKey), network: network);
     return Wallet(_keyPair, _p2pkh, network);
   }
 
-  factory Wallet.fromWIF(String wif, [NetworkType network]) {
+  factory Wallet.fromWIF(String wif, [NetworkType? network]) {
     network = network ?? bitcoin;
     final _keyPair = ECPair.fromWIF(wif, network: network);
     final _p2pkh =
@@ -145,7 +148,7 @@ class Wallet {
     return _keyPair.sign(messageHash);
   }
 
-  bool verify({String message, Uint8List signature}) {
+  bool verify({required String message, required Uint8List signature}) {
     var messageHash = magicHash(message, network);
     return _keyPair.verify(messageHash, signature);
   }

@@ -1,19 +1,21 @@
 import 'dart:typed_data';
-import 'package:hex/hex.dart';
+
 import 'package:bip32/src/utils/ecurve.dart' as ecc;
+import 'package:hex/hex.dart';
+
+import 'check_types.dart';
 import 'constants/op.dart';
 import 'push_data.dart' as pushdata;
-import 'check_types.dart';
 
 Map<int, String> REVERSE_OPS =
     OPS.map((String string, int number) => MapEntry(number, string));
-final OP_INT_BASE = OPS['OP_RESERVED'];
+final OP_INT_BASE = OPS['OP_RESERVED']!;
 final ZERO = Uint8List.fromList([0]);
 
 bool isOPInt(dynamic value) {
   return (value is num &&
       (value == OPS['OP_0'] ||
-          (value >= OPS['OP_1'] && value <= OPS['OP_16']) ||
+          (value >= OPS['OP_1']! && value <= OPS['OP_16']!) ||
           value == OPS['OP_1NEGATE']));
 }
 
@@ -26,12 +28,12 @@ bool isPushOnly(dynamic value) {
 }
 
 Uint8List compile(List<dynamic> chunks) {
-  final bufferSize = chunks.fold(0, (acc, chunk) {
+  final dynamic bufferSize = chunks.fold<int>(0, (int acc, chunk) {
     if (chunk is int) return acc + 1;
     if (chunk.length == 1 && asMinimalOP(chunk) != null) {
       return acc + 1;
     }
-    return acc + pushdata.encodingLength(chunk.length) + chunk.length;
+    return acc + pushdata.encodingLength(chunk.length) + chunk.length as int;
   });
   var buffer = Uint8List(bufferSize);
 
@@ -62,7 +64,7 @@ Uint8List compile(List<dynamic> chunks) {
   return buffer;
 }
 
-List<dynamic> decompile(dynamic buffer) {
+List<dynamic>? decompile(dynamic buffer) {
   var chunks = <dynamic>[];
 
   if (buffer == null) return chunks;
@@ -114,7 +116,7 @@ Uint8List fromASM(String asm) {
 String toASM(List<dynamic> c) {
   List<dynamic> chunks;
   if (c is Uint8List) {
-    chunks = decompile(c);
+    chunks = decompile(c)!;
   } else {
     chunks = c;
   }
@@ -130,8 +132,8 @@ String toASM(List<dynamic> c) {
   }).join(' ');
 }
 
-int asMinimalOP(Uint8List buffer) {
-  if (buffer.isEmpty) return OPS['OP_0'];
+int? asMinimalOP(Uint8List buffer) {
+  if (buffer.isEmpty) return OPS['OP_0']!;
   if (buffer.length != 1) return null;
   if (buffer[0] >= 1 && buffer[0] <= 16) return OP_INT_BASE + buffer[0];
   if (buffer[0] == 0x81) return OPS['OP_1NEGATE'];
@@ -180,8 +182,8 @@ bool bip66check(buffer) {
 }
 
 Uint8List bip66encode(r, s) {
-  var lenR = r.length;
-  var lenS = s.length;
+  int lenR = r.length;
+  int lenS = s.length;
   if (lenR == 0) throw ArgumentError('R length is zero');
   if (lenS == 0) throw ArgumentError('S length is zero');
   if (lenR > 33) throw ArgumentError('R length is too long');

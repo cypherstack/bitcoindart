@@ -1,13 +1,14 @@
-import 'dart:typed_data';
-import 'dart:io';
 import 'dart:convert';
-import 'package:test/test.dart';
-import 'package:hex/hex.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:bitcoindart/src/ecpair.dart' show ECPair;
 import 'package:bitcoindart/src/models/networks.dart' as networks;
+import 'package:hex/hex.dart';
+import 'package:test/test.dart';
 
-final ONE = HEX
-    .decode('0000000000000000000000000000000000000000000000000000000000000001');
+final ONE = Uint8List.fromList(HEX.decode(
+    '0000000000000000000000000000000000000000000000000000000000000001'));
 
 void main() {
   final fixtures = json.decode(
@@ -29,14 +30,14 @@ void main() {
       });
       (fixtures['valid'] as List).forEach((f) {
         test('derives public key for ${f['WIF']}', () {
-          final d = HEX.decode(f['d']);
+          final d = Uint8List.fromList(HEX.decode(f['d']));
           final keyPair = ECPair.fromPrivateKey(d, compressed: f['compressed']);
           expect(HEX.encode(keyPair.publicKey), f['Q']);
         });
       });
       (fixtures['invalid']['fromPrivateKey'] as List).forEach((f) {
         test('throws ' + f['exception'], () {
-          final d = HEX.decode(f['d']);
+          final d = Uint8List.fromList(HEX.decode(f['d']));
           try {
             expect(ECPair.fromPrivateKey(d), isArgumentError);
           } catch (err) {
@@ -48,7 +49,7 @@ void main() {
     group('fromPublicKey', () {
       (fixtures['invalid']['fromPublicKey'] as List).forEach((f) {
         test('throws ' + f['exception'], () {
-          final Q = HEX.decode(f['Q']);
+          final Q = Uint8List.fromList(HEX.decode(f['Q']));
           try {
             expect(ECPair.fromPublicKey(Q), isArgumentError);
           } catch (err) {
@@ -62,7 +63,7 @@ void main() {
         test('imports ${f['WIF']}', () {
           final keyPair = ECPair.fromWIF(f['WIF']);
           var network = _getNetwork(f);
-          expect(HEX.encode(keyPair.privateKey), f['d']);
+          expect(HEX.encode(keyPair.privateKey!), f['d']);
           expect(keyPair.compressed, f['compressed']);
           expect(keyPair.network, network);
         });
@@ -130,7 +131,7 @@ void main() {
   });
 }
 
-networks.NetworkType _getNetwork(f) {
+networks.NetworkType? _getNetwork(f) {
   var network;
   if (f['network'] != null) {
     if (f['network'] == 'bitcoin') {
