@@ -36,6 +36,7 @@ class Transaction {
   int locktime = 0;
   List<Input> ins = [];
   List<Output> outs = [];
+  Uint8List? payload;
   Transaction();
 
   int addInput(Uint8List hash, int index,
@@ -52,6 +53,10 @@ class Transaction {
   int addOutput(Uint8List scriptPubKey, int value) {
     outs.add(Output(script: scriptPubKey, value: value));
     return outs.length - 1;
+  }
+
+  void setPayload(Uint8List payload) {
+    this.payload = payload;
   }
 
   bool hasWitnesses() {
@@ -257,6 +262,7 @@ class Transaction {
         varuint.encodingLength(outs.length) +
         ins.fold(0, (sum, input) => sum + 40 + varSliceSize(input.script!)) +
         outs.fold(0, (sum, output) => sum + 8 + varSliceSize(output.script!)) +
+        (payload != null ? varSliceSize(payload!) : 0) +
         (hasWitness
             ? ins.fold(0, (sum, input) {
                 if (input.witness == null) {
@@ -309,8 +315,10 @@ class Transaction {
     return ins.length == 1 && isCoinbaseHash(ins[0].hash);
   }
 
-  Uint8List getHash() {
-    // if (isCoinbase()) return Uint8List.fromList(List.generate(32, (i) => 0));
+  Uint8List getHash({bool forWitness = false}) {
+    if (forWitness && isCoinbase()) {
+      return Uint8List.fromList(List.generate(32, (i) => 0));
+    }
     return bcrypto.hash256(_toBuffer(null, null, false));
   }
 
@@ -405,6 +413,10 @@ class Transaction {
     }
 
     writeUInt32(locktime);
+
+    if (payload != null) {
+      writeVarSlice(payload!);
+    }
     // End writeBuffer
 
     // avoid slicing unless necessary
@@ -423,6 +435,7 @@ class Transaction {
     tx.outs = _tx.outs.map((output) {
       return Output.clone(output);
     }).toList();
+    tx.payload = _tx.payload;
     return tx;
   }
 
@@ -518,6 +531,10 @@ class Transaction {
     }
 
     tx.locktime = readUInt32();
+
+    try {
+      tx.payload = readVarSlice();
+    } catch (e) {}
 
     if (noStrict) return tx;
 

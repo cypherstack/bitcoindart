@@ -399,9 +399,9 @@ class TransactionBuilder {
   int _addInputUnsafe(Uint8List hash, int vout, Input options) {
     var txHash = HEX.encode(hash);
     Input input;
-    if (isCoinbaseHash(hash)) {
-      throw ArgumentError('coinbase inputs not supported');
-    }
+    // if (isCoinbaseHash(hash)) {
+    //   throw ArgumentError('coinbase inputs not supported');
+    // }
     final prevTxOut = '$txHash:$vout';
     if (_prevTxSet[prevTxOut] != null) {
       throw ArgumentError('Duplicate TxOut: ' + prevTxOut);
