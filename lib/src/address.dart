@@ -10,16 +10,18 @@ import 'payments/p2sh.dart';
 import 'payments/p2wpkh.dart';
 
 class Address {
-  static bool validateAddress(String address, [NetworkType? nw]) {
+  static bool validateAddress(String address,
+      [NetworkType? nw, String overridePrefix = '']) {
     try {
-      addressToOutputScript(address, nw);
+      addressToOutputScript(address, nw, overridePrefix);
       return true;
     } catch (err) {
       return false;
     }
   }
 
-  static Uint8List addressToOutputScript(String address, [NetworkType? nw]) {
+  static Uint8List addressToOutputScript(String address,
+      [NetworkType? nw, String overridePrefix = '']) {
     var network = nw ?? bitcoin;
     var decodeBase58;
     var decodeBech32;
@@ -42,7 +44,7 @@ class Address {
       throw ArgumentError('Invalid version or Network mismatch');
     } else {
       try {
-        decodeBech32 = segwit.decode(address);
+        decodeBech32 = segwit.decode(address, overridePrefix);
       } catch (err) {
         // Bech32 decode fail
       }

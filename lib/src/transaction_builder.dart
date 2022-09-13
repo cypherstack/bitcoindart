@@ -31,7 +31,7 @@ class TransactionBuilder {
   List<Input> get inputs => _inputs;
 
   factory TransactionBuilder.fromTransaction(Transaction transaction,
-      [NetworkType? network]) {
+      [NetworkType? network, String overridePrefix = '']) {
     final txb = TransactionBuilder(network: network);
     // Copy transaction fields
     txb.setVersion(transaction.version);
@@ -39,7 +39,7 @@ class TransactionBuilder {
 
     // Copy outputs (done first to avoid signature invalidation)
     transaction.outs.forEach((txOut) {
-      txb.addOutput(txOut.script, txOut.value!);
+      txb.addOutput(txOut.script, txOut.value!, overridePrefix);
     });
 
     transaction.ins.forEach((txIn) {
@@ -85,10 +85,11 @@ class TransactionBuilder {
     return true;
   }
 
-  int addOutput(dynamic data, int value) {
+  int addOutput(dynamic data, int value, [String overridePrefix = '']) {
     var scriptPubKey;
     if (data is String) {
-      scriptPubKey = Address.addressToOutputScript(data, network);
+      scriptPubKey =
+          Address.addressToOutputScript(data, network, overridePrefix);
     } else if (data is Uint8List) {
       scriptPubKey = data;
     } else {
