@@ -55,8 +55,10 @@ class Address {
         if (decodeBech32.version != 0) {
           throw ArgumentError('Invalid address version');
         }
-        var p2wpkh =
-            P2WPKH(data: PaymentData(address: address), network: network);
+        var p2wpkh = P2WPKH(
+            data: PaymentData(address: address),
+            network: network,
+            overridePrefix: overridePrefix);
         return p2wpkh.data.output!;
       }
     }

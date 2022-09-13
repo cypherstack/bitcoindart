@@ -623,7 +623,7 @@ class Input {
   }
 
   factory Input.expandInput(Uint8List scriptSig, List<Uint8List> witness,
-      [String? type, Uint8List? scriptPubKey]) {
+      [String? type, Uint8List? scriptPubKey, String overridePrefix = '']) {
     if (scriptSig.isEmpty && witness.isEmpty) {
       return Input();
     }
@@ -635,7 +635,8 @@ class Input {
       type = ssType ?? wsType;
     }
     if (type == SCRIPT_TYPES['P2WPKH']) {
-      var p2wpkh = P2WPKH(data: PaymentData(witness: witness));
+      var p2wpkh = P2WPKH(
+          data: PaymentData(witness: witness), overridePrefix: overridePrefix);
       return Input(
           prevOutScript: p2wpkh.data.output,
           prevOutType: SCRIPT_TYPES['P2WPKH'],
@@ -670,6 +671,7 @@ class Input {
         redeem.witness!,
         outputType,
         redeem.output,
+        overridePrefix,
       );
       if (expanded.prevOutType == null) return Input();
       return Input(
@@ -760,11 +762,15 @@ class Output {
     }
   }
 
-  factory Output.expandOutput(Uint8List script, [Uint8List? ourPubKey]) {
+  factory Output.expandOutput(Uint8List script,
+      [Uint8List? ourPubKey, String overridePrefix = '']) {
     if (ourPubKey == null) return Output();
     var type = classifyOutput(script);
     if (type == SCRIPT_TYPES['P2WPKH']) {
-      var wpkh1 = P2WPKH(data: PaymentData(output: script)).data.hash;
+      var wpkh1 = P2WPKH(
+              data: PaymentData(output: script), overridePrefix: overridePrefix)
+          .data
+          .hash;
       var wpkh2 = bcrypto.hash160(ourPubKey);
       if (wpkh1.toString() != wpkh2.toString()) {
         throw ArgumentError('Hash mismatch!');

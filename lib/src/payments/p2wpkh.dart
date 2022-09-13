@@ -15,13 +15,13 @@ class P2WPKH {
 
   late PaymentData data;
   late NetworkType network;
-  P2WPKH({@required data, network}) {
+  P2WPKH({@required data, network, String overridePrefix = ''}) {
     this.network = network ?? bitcoin;
     this.data = data;
-    _init();
+    _init(overridePrefix);
   }
 
-  void _init() {
+  void _init([String overridePrefix = '']) {
     if (data.address == null &&
         data.hash == null &&
         data.output == null &&
@@ -31,7 +31,7 @@ class P2WPKH {
     data.name = 'p2wpkh';
 
     if (data.address != null) {
-      _getDataFromAddress(data.address!);
+      _getDataFromAddress(data.address!, overridePrefix);
     }
 
     if (data.hash != null) {
@@ -83,9 +83,9 @@ class P2WPKH {
     data.output ??= bscript.compile([OPS['OP_0'], data.hash]);
   }
 
-  void _getDataFromAddress(String address) {
+  void _getDataFromAddress(String address, [String overridePrefix = '']) {
     try {
-      var _address = segwit.decode(address);
+      var _address = segwit.decode(address, overridePrefix);
       if (network.bech32 != _address.hrp) {
         throw ArgumentError('Invalid prefix or Network mismatch');
       }

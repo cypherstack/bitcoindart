@@ -44,12 +44,14 @@ class TransactionBuilder {
 
     transaction.ins.forEach((txIn) {
       txb._addInputUnsafe(
-          txIn.hash!,
-          txIn.index!,
-          Input(
-              sequence: txIn.sequence,
-              script: txIn.script,
-              witness: txIn.witness));
+        txIn.hash!,
+        txIn.index!,
+        Input(
+            sequence: txIn.sequence,
+            script: txIn.script,
+            witness: txIn.witness),
+        overridePrefix,
+      );
     });
 
     // fix some things not possible through the public API
@@ -102,7 +104,7 @@ class TransactionBuilder {
   }
 
   int addInput(dynamic txHash, int vout,
-      [int? sequence, Uint8List? prevOutScript]) {
+      [int? sequence, Uint8List? prevOutScript, String overridePrefix = '']) {
     if (!_canModifyInputs()) {
       throw ArgumentError('No, this would invalidate signatures');
     }
@@ -120,8 +122,11 @@ class TransactionBuilder {
     } else {
       throw ArgumentError('txHash invalid');
     }
-    return _addInputUnsafe(hash, vout,
-        Input(sequence: sequence, prevOutScript: prevOutScript, value: value));
+    return _addInputUnsafe(
+        hash,
+        vout,
+        Input(sequence: sequence, prevOutScript: prevOutScript, value: value),
+        overridePrefix);
   }
 
   dynamic sign(
@@ -131,7 +136,8 @@ class TransactionBuilder {
       Uint8List? redeemScript,
       int? witnessValue,
       Uint8List? witnessScript,
-      int? hashType}) {
+      int? hashType,
+      String overridePrefix = ''}) {
     // TODO checkSignArgs
 
     if (keyPair.network != null &&
@@ -185,8 +191,8 @@ class TransactionBuilder {
             }
           }
         }
-        final expanded =
-            Output.expandOutput(p2sh.data.redeem!.output!, ourPubKey);
+        final expanded = Output.expandOutput(
+            p2sh.data.redeem!.output!, ourPubKey, overridePrefix);
 
         if (expanded.pubkeys == null) {
           throw ArgumentError(
@@ -272,7 +278,7 @@ class TransactionBuilder {
     if (!signed) throw ArgumentError('Key pair cannot sign for this input');
   }
 
-  Transaction _build(bool allowIncomplete) {
+  Transaction _build(bool allowIncomplete, [String overridePrefix = '']) {
     if (!allowIncomplete) {
       if (_tx.ins.isEmpty) throw ArgumentError('Transaction has no inputs');
       if (_tx.outs.isEmpty) {
@@ -288,8 +294,8 @@ class TransactionBuilder {
           input.signatures != null &&
           input.pubkeys!.isNotEmpty &&
           input.signatures!.isNotEmpty) {
-        final result =
-            buildByType(input.prevOutType!, input, allowIncomplete, network);
+        final result = buildByType(input.prevOutType!, input, allowIncomplete,
+            network, overridePrefix);
         if (result == null) {
           if (!allowIncomplete &&
               input.prevOutType == SCRIPT_TYPES['NONSTANDARD']) {
@@ -318,12 +324,12 @@ class TransactionBuilder {
     return tx;
   }
 
-  Transaction build() {
-    return _build(false);
+  Transaction build([String overridePrefix = '']) {
+    return _build(false, overridePrefix);
   }
 
-  Transaction buildIncomplete() {
-    return _build(true);
+  Transaction buildIncomplete([String overridePrefix = '']) {
+    return _build(true, overridePrefix);
   }
 
   bool _overMaximumFees(int bytes) {
@@ -397,7 +403,8 @@ class TransactionBuilder {
         (input.hasWitness == false || input.value != null);
   }
 
-  int _addInputUnsafe(Uint8List hash, int vout, Input options) {
+  int _addInputUnsafe(Uint8List hash, int vout, Input options,
+      [String overridePrefix = '']) {
     var txHash = HEX.encode(hash);
     Input input;
     // if (isCoinbaseHash(hash)) {
@@ -410,8 +417,8 @@ class TransactionBuilder {
 
     // if an input value was given, retain it
     if (options.script != null) {
-      input =
-          Input.expandInput(options.script!, options.witness ?? EMPTY_WITNESS);
+      input = Input.expandInput(options.script!,
+          options.witness ?? EMPTY_WITNESS, null, null, overridePrefix);
     } else {
       input = Input();
     }
@@ -420,7 +427,8 @@ class TransactionBuilder {
     if (options.value != null) input.value = options.value;
     if (input.prevOutScript == null && options.prevOutScript != null) {
       if (input.pubkeys == null && input.signatures == null) {
-        var expanded = Output.expandOutput(options.prevOutScript!);
+        var expanded =
+            Output.expandOutput(options.prevOutScript!, null, overridePrefix);
         if (expanded.pubkeys != null && expanded.pubkeys!.isNotEmpty) {
           input.pubkeys = expanded.pubkeys;
           input.signatures = expanded.signatures;
@@ -445,7 +453,8 @@ class TransactionBuilder {
 }
 
 PaymentData? buildByType(
-    String type, Input input, bool allowIncomplete, NetworkType network) {
+    String type, Input input, bool allowIncomplete, NetworkType network,
+    [String overridePrefix = '']) {
   if (type == SCRIPT_TYPES['P2PKH']) {
     return P2PKH(
             data: PaymentData(
@@ -456,11 +465,12 @@ PaymentData? buildByType(
     return P2WPKH(
             data: PaymentData(
                 pubkey: input.pubkeys![0], signature: input.signatures![0]),
-            network: network)
+            network: network,
+            overridePrefix: overridePrefix)
         .data;
   } else if (type == SCRIPT_TYPES['P2SH']) {
-    final redeem =
-        buildByType(input.redeemScriptType!, input, allowIncomplete, network);
+    final redeem = buildByType(input.redeemScriptType!, input, allowIncomplete,
+        network, overridePrefix);
 
     if (redeem == null) {
       return null;
