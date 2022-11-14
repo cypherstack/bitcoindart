@@ -428,6 +428,9 @@ class Transaction {
       writeVarSlice(txOut.script);
     });
 
+    print("ALLOW WITNESS IS $_ALLOW_WITNESS");
+    print("HAS WITNESS IS ${hasWitnesses().toString()}");
+
     if (_ALLOW_WITNESS && hasWitnesses()) {
       print("HAS WITNESS");
       ins.forEach((txInt) {
@@ -527,6 +530,7 @@ class Transaction {
 
     final tx = Transaction();
     tx.version = readInt16();
+    tx.locktime = readUInt32();
 
     final marker = readUInt8();
     final flag = readUInt8();
@@ -558,8 +562,6 @@ class Transaction {
         tx.ins[i].witness = readVector();
       }
     }
-
-    tx.locktime = readUInt32();
 
     try {
       tx.payload = readVarSlice();
