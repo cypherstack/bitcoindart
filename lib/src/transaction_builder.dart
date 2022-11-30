@@ -31,7 +31,7 @@ class TransactionBuilder {
   List<Input> get inputs => _inputs;
 
   factory TransactionBuilder.fromTransaction(Transaction transaction,
-      [NetworkType? network, String overridePrefix = '']) {
+      [NetworkType? network, String overridePrefix = '', bool isParticl = false]) {
     final txb = TransactionBuilder(network: network);
     // Copy transaction fields
     txb.setVersion(transaction.version);
@@ -51,6 +51,7 @@ class TransactionBuilder {
             script: txIn.script,
             witness: txIn.witness),
         overridePrefix,
+        isParticl
       );
     });
 
@@ -104,7 +105,7 @@ class TransactionBuilder {
   }
 
   int addInput(dynamic txHash, int vout,
-      [int? sequence, Uint8List? prevOutScript, String overridePrefix = '']) {
+      [int? sequence, Uint8List? prevOutScript, String overridePrefix = '', bool isParticl = false]) {
     if (!_canModifyInputs()) {
       throw ArgumentError('No, this would invalidate signatures');
     }
@@ -137,7 +138,8 @@ class TransactionBuilder {
       int? witnessValue,
       Uint8List? witnessScript,
       int? hashType,
-      String overridePrefix = ''}) {
+      String overridePrefix = '',
+      bool isParticl = false}) {
     // TODO checkSignArgs
 
     if (keyPair.network != null &&
@@ -256,9 +258,9 @@ class TransactionBuilder {
     var signatureHash;
     if (input.hasWitness != null && input.hasWitness!) {
       signatureHash =
-          _tx.hashForWitnessV0(vin, input.signScript!, input.value!, hashType);
+          _tx.hashForWitnessV0(vin, input.signScript!, input.value!, hashType, isParticl);
     } else {
-      signatureHash = _tx.hashForSignature(vin, input.signScript!, hashType);
+      signatureHash = _tx.hashForSignature(vin, input.signScript!, hashType, isParticl);
     }
 
     // enforce in order signing of public keys
@@ -404,7 +406,7 @@ class TransactionBuilder {
   }
 
   int _addInputUnsafe(Uint8List hash, int vout, Input options,
-      [String overridePrefix = '']) {
+      [String overridePrefix = '', bool isParticl = false]) {
     var txHash = HEX.encode(hash);
     Input input;
     // if (isCoinbaseHash(hash)) {
@@ -437,7 +439,7 @@ class TransactionBuilder {
       input.prevOutScript = options.prevOutScript;
       input.prevOutType = classifyOutput(options.prevOutScript!);
     }
-    var vin = _tx.addInput(hash, vout, options.sequence, options.script);
+    var vin = _tx.addInput(hash, vout, options.sequence, options.script, overridePrefix, isParticl);
     _inputs.add(input);
     _prevTxSet[prevTxOut] = true;
     return vin;
