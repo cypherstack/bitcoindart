@@ -74,7 +74,7 @@ class Transaction {
   }
 
   Uint8List hashForWitnessV0(
-      int inIndex, Uint8List prevOutScript, int value, int hashType) {
+      int inIndex, Uint8List prevOutScript, int value, int hashType, [bool isParticl = false]) {
     var tbuffer = Uint8List.fromList([]);
     var toffset = 0;
     // Any changes made to the ByteData will also change the buffer, and vice versa.
@@ -95,9 +95,19 @@ class Transaction {
       toffset++;
     }
 
+    void writeUInt16(i) {
+      bytes.setUint16(toffset, i, Endian.little);
+      toffset += 2;
+    }
+
     void writeUInt32(i) {
       bytes.setUint32(toffset, i, Endian.little);
       toffset += 4;
+    }
+
+    void writeInt16(i) {
+      bytes.setInt16(toffset, i, Endian.little);
+      toffset += 2;
     }
 
     // ignore: unused_element
@@ -180,7 +190,11 @@ class Transaction {
     bytes = tbuffer.buffer.asByteData();
     toffset = 0;
     var input = ins[inIndex];
-    writeUInt32(version);
+    if (!isParticl) {
+      writeUInt32(version);
+    } else {
+      writeUInt16(version);
+    }
     writeSlice(hashPrevouts);
     writeSlice(hashSequence);
     writeSlice(input.hash!);
@@ -196,13 +210,13 @@ class Transaction {
   }
 
   List<int> hashForSignature(
-      int inIndex, Uint8List prevOutScript, int hashType) {
+    int inIndex, Uint8List prevOutScript, int hashType, [bool isParticl = false]) {
     if (inIndex >= ins.length) return ONE;
     // ignore OP_CODESEPARATOR
     final ourScript =
-        bscript.compile(bscript.decompile(prevOutScript)!.where((x) {
-      return x != OPS['OP_CODESEPARATOR']!;
-    }).toList());
+      bscript.compile(bscript.decompile(prevOutScript)!.where((x) {
+        return x != OPS['OP_CODESEPARATOR']!;
+      }).toList());
     final txTmp = Transaction.clone(this);
     // SIGHASH_NONE: ignore all outputs? (wildcard payee)
     if ((hashType & 0x1f) == SIGHASH_NONE) {
@@ -251,7 +265,7 @@ class Transaction {
     buffer.buffer
         .asByteData()
         .setUint32(buffer.length - 4, hashType, Endian.little);
-    txTmp._toBuffer(buffer, 0);
+    txTmp._toBuffer(buffer, 0, false, isParticl);
     return bcrypto.hash256(buffer);
   }
 
@@ -295,8 +309,8 @@ class Transaction {
     return (weight() / 4).ceil();
   }
 
-  Uint8List toBuffer([Uint8List? buffer, int? initialOffset]) {
-    return _toBuffer(buffer, initialOffset, true);
+  Uint8List toBuffer([Uint8List? buffer, int? initialOffset, bool? isParticl = false]) {
+    return _toBuffer(buffer, initialOffset, true, isParticl);
   }
 
   String toHex() {
@@ -315,11 +329,11 @@ class Transaction {
     return ins.length == 1 && isCoinbaseHash(ins[0].hash);
   }
 
-  Uint8List getHash({bool forWitness = false}) {
+  Uint8List getHash({bool forWitness = false, bool isParticl = false}) {
     if (forWitness && isCoinbase()) {
       return Uint8List.fromList(List.generate(32, (i) => 0));
     }
-    return bcrypto.hash256(_toBuffer(null, null, false));
+    return bcrypto.hash256(_toBuffer(null, null, false, isParticl));
   }
 
   String getId() {
@@ -327,7 +341,7 @@ class Transaction {
   }
 
   Uint8List _toBuffer(
-      [Uint8List? buffer, initialOffset, bool _ALLOW_WITNESS = false]) {
+      [Uint8List? buffer, initialOffset, bool _ALLOW_WITNESS = false, bool isParticl = false]) {
     // _ALLOW_WITNESS is used to separate witness part when calculating tx id
     buffer ??= Uint8List(_byteLength(_ALLOW_WITNESS));
 
@@ -346,19 +360,29 @@ class Transaction {
       offset++;
     }
 
-    void writeUInt32(i) {
-      bytes.setUint32(offset, i, Endian.little);
-      offset += 4;
+    void writeUInt16(i) {
+      bytes.setUint16(offset, i, Endian.little);
+      offset += 2;
     }
 
-    void writeInt32(i) {
-      bytes.setInt32(offset, i, Endian.little);
+    void writeUInt32(i) {
+      bytes.setUint32(offset, i, Endian.little);
       offset += 4;
     }
 
     void writeUInt64(i) {
       bytes.setUint64(offset, i, Endian.little);
       offset += 8;
+    }
+
+    void writeInt16(i) {
+      bytes.setInt16(offset, i, Endian.little);
+      offset += 2;
+    }
+
+    void writeInt32(i) {
+      bytes.setInt32(offset, i, Endian.little);
+      offset += 4;
     }
 
     void writeVarInt(i) {
@@ -379,7 +403,12 @@ class Transaction {
     }
 
     // Start writeBuffer
-    writeInt32(version);
+    if (!isParticl) {
+      writeInt32(version);
+    } else {
+      writeInt16(version);
+      writeUInt32(locktime);
+    }
 
     if (_ALLOW_WITNESS && hasWitnesses()) {
       writeUInt8(ADVANCED_TRANSACTION_MARKER);
@@ -397,6 +426,7 @@ class Transaction {
 
     writeVarInt(outs.length);
 
+    print("OUTS IS $outs");
     outs.forEach((txOut) {
       if (txOut.valueBuffer == null) {
         writeUInt64(txOut.value);
@@ -406,16 +436,25 @@ class Transaction {
       writeVarSlice(txOut.script);
     });
 
+    print("ALLOW WITNESS IS $_ALLOW_WITNESS");
+    print("HAS WITNESS IS ${hasWitnesses().toString()}");
+
     if (_ALLOW_WITNESS && hasWitnesses()) {
+      print("HAS WITNESS");
       ins.forEach((txInt) {
         writeVector(txInt.witness);
       });
     }
 
-    writeUInt32(locktime);
+    if (!isParticl) {
+      writeUInt32(locktime);
+    }
 
     if (payload != null) {
+      print("PAYLOAD IS $payload");
       writeVarSlice(payload!);
+    } else {
+      print("PAYLOAD IS NULL");
     }
     // End writeBuffer
 
@@ -442,6 +481,7 @@ class Transaction {
   factory Transaction.fromBuffer(
     Uint8List buffer, {
     bool noStrict = false,
+    bool isParticl = false
   }) {
     var offset = 0;
     // Any changes made to the ByteData will also change the buffer, and vice versa.
@@ -460,15 +500,21 @@ class Transaction {
       return i;
     }
 
-    int readInt32() {
-      final i = bytes.getInt32(offset, Endian.little);
-      offset += 4;
-      return i;
-    }
-
     int readUInt64() {
       final i = bytes.getUint64(offset, Endian.little);
       offset += 8;
+      return i;
+    }
+
+    int readInt16() {
+      final i = bytes.getInt16(offset, Endian.little);
+      offset += 2;
+      return i;
+    }
+
+    int readInt32() {
+      final i = bytes.getInt32(offset, Endian.little);
+      offset += 4;
       return i;
     }
 
@@ -497,7 +543,12 @@ class Transaction {
     }
 
     final tx = Transaction();
-    tx.version = readInt32();
+    if (!isParticl) {
+      tx.version = readInt32();
+    } else {
+      tx.version = readInt16();
+      tx.locktime = readUInt32();
+    }
 
     final marker = readUInt8();
     final flag = readUInt8();
@@ -530,7 +581,9 @@ class Transaction {
       }
     }
 
-    tx.locktime = readUInt32();
+    if (!isParticl) {
+      tx.locktime = readUInt32();
+    }
 
     try {
       tx.payload = readVarSlice();
@@ -548,10 +601,12 @@ class Transaction {
   factory Transaction.fromHex(
     String hex, {
     bool noStrict = false,
+    bool isParticl = false
   }) {
     return Transaction.fromBuffer(
       Uint8List.fromList(HEX.decode(hex)),
       noStrict: noStrict,
+      isParticl: isParticl
     );
   }
 
