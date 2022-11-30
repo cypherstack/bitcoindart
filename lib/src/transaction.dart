@@ -310,7 +310,7 @@ class Transaction {
   }
 
   Uint8List toBuffer([Uint8List? buffer, int? initialOffset, bool? isParticl = false]) {
-    return _toBuffer(buffer, initialOffset, true, isParticl);
+    return _toBuffer(buffer, initialOffset, true, isParticl ?? false);
   }
 
   String toHex() {
