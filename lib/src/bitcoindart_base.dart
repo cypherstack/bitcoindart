@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bitcoindart/src/utils/magic_hash.dart';
+import 'package:particldart/src/utils/magic_hash.dart';
 import 'package:hex/hex.dart';
 
 import 'ecpair.dart';
@@ -68,7 +69,7 @@ class HDWallet {
   }
 
   factory HDWallet.fromSeed(Uint8List seed, {NetworkType? network}) {
-    network = network ?? bitcoin;
+    network = network ?? particl;
     final seedHex = HEX.encode(seed);
     final wallet = bip32.BIP32.fromSeed(
         seed,
@@ -83,7 +84,7 @@ class HDWallet {
   }
 
   factory HDWallet.fromBase58(String xpub, {NetworkType? network}) {
-    network = network ?? bitcoin;
+    network = network ?? particl;
     final wallet = bip32.BIP32.fromBase58(
         xpub,
         bip32.NetworkType(
@@ -104,7 +105,7 @@ class HDWallet {
       {required String message,
       required Uint8List signature,
       NetworkType? network}) {
-    network = network ?? bitcoin;
+    network = network ?? particl;
     var messageHash = magicHash(message, network);
     return _bip32.verify(messageHash, signature);
   }
@@ -128,7 +129,7 @@ class Wallet {
   Wallet(this._keyPair, this._p2pkh, this.network);
 
   factory Wallet.random([NetworkType? network]) {
-    network = network ?? bitcoin;
+    network = network ?? particl;
     final _keyPair = ECPair.makeRandom(network: network);
     final _p2pkh =
         P2PKH(data: PaymentData(pubkey: _keyPair.publicKey), network: network);
@@ -136,7 +137,7 @@ class Wallet {
   }
 
   factory Wallet.fromWIF(String wif, [NetworkType? network]) {
-    network = network ?? bitcoin;
+    network = network ?? particl;
     final _keyPair = ECPair.fromWIF(wif, network: network);
     final _p2pkh =
         P2PKH(data: PaymentData(pubkey: _keyPair.publicKey), network: network);

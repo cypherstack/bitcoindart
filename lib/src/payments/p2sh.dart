@@ -14,7 +14,7 @@ class P2SH {
   late PaymentData data;
   late NetworkType network;
   P2SH({@required data, network}) {
-    this.network = network ?? bitcoin;
+    this.network = network ?? particl;
     this.data = data;
     _init();
   }

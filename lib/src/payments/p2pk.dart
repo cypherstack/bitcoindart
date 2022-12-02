@@ -8,7 +8,7 @@ class P2PK {
   late PaymentData data;
   late NetworkType network;
   P2PK({required data, network}) {
-    this.network = network ?? bitcoin;
+    this.network = network ?? particl;
     this.data = data;
     _init();
   }

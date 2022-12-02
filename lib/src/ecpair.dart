@@ -15,7 +15,7 @@ class ECPair {
       {NetworkType? network, bool? compressed}) {
     this._d = _d;
     this._Q = _Q;
-    this.network = network ?? bitcoin;
+    this.network = network ?? particl;
     this.compressed = compressed ?? true;
   }
   Uint8List get publicKey {
@@ -50,10 +50,10 @@ class ECPair {
       nw = network;
       if (nw.wif != version) throw ArgumentError('Invalid network version');
     } else {
-      if (version == bitcoin.wif) {
-        nw = bitcoin;
-      } else if (version == testnet.wif) {
-        nw = testnet;
+      if (version == particl.wif) {
+        nw = particl;
+      } else if (version == particltestnet.wif) {
+        nw = particltestnet;
       } else {
         throw ArgumentError('Unknown network version');
       }
@@ -81,7 +81,7 @@ class ECPair {
   }
   factory ECPair.makeRandom(
       {NetworkType? network, bool? compressed, Function? rng}) {
-    network = network ?? bitcoin;
+    network = network ?? particl;
     final rfunc = rng ?? _randomBytes;
     Uint8List d;
 //    int beginTime = DateTime.now().millisecondsSinceEpoch;
