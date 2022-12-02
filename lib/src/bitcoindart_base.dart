@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bitcoindart/src/utils/magic_hash.dart';
-import 'package:particldart/src/utils/magic_hash.dart';
 import 'package:hex/hex.dart';
 
 import 'ecpair.dart';
