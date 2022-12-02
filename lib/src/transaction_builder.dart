@@ -21,7 +21,7 @@ class TransactionBuilder {
   final Map _prevTxSet = {};
 
   TransactionBuilder({NetworkType? network, int? maximumFeeRate}) {
-    this.network = network ?? bitcoin;
+    this.network = network ?? particl;
     this.maximumFeeRate = maximumFeeRate ?? 2500;
     _inputs = [];
     _tx = Transaction();
@@ -31,7 +31,7 @@ class TransactionBuilder {
   List<Input> get inputs => _inputs;
 
   factory TransactionBuilder.fromTransaction(Transaction transaction,
-      [NetworkType? network, String overridePrefix = '', bool isParticl = false]) {
+      [NetworkType? network, String overridePrefix = '']) {
     final txb = TransactionBuilder(network: network);
     // Copy transaction fields
     txb.setVersion(transaction.version);
@@ -51,7 +51,6 @@ class TransactionBuilder {
             script: txIn.script,
             witness: txIn.witness),
         overridePrefix,
-        isParticl
       );
     });
 
@@ -105,7 +104,7 @@ class TransactionBuilder {
   }
 
   int addInput(dynamic txHash, int vout,
-      [int? sequence, Uint8List? prevOutScript, String overridePrefix = '', bool isParticl = false]) {
+      [int? sequence, Uint8List? prevOutScript, String overridePrefix = '']) {
     if (!_canModifyInputs()) {
       throw ArgumentError('No, this would invalidate signatures');
     }
@@ -138,8 +137,7 @@ class TransactionBuilder {
       int? witnessValue,
       Uint8List? witnessScript,
       int? hashType,
-      String overridePrefix = '',
-      bool isParticl = false}) {
+      String overridePrefix = ''}) {
     // TODO checkSignArgs
 
     if (keyPair.network != null &&
@@ -258,9 +256,9 @@ class TransactionBuilder {
     var signatureHash;
     if (input.hasWitness != null && input.hasWitness!) {
       signatureHash =
-          _tx.hashForWitnessV0(vin, input.signScript!, input.value!, hashType, isParticl);
+          _tx.hashForWitnessV0(vin, input.signScript!, input.value!, hashType);
     } else {
-      signatureHash = _tx.hashForSignature(vin, input.signScript!, hashType, isParticl);
+      signatureHash = _tx.hashForSignature(vin, input.signScript!, hashType);
     }
 
     // enforce in order signing of public keys
@@ -406,7 +404,7 @@ class TransactionBuilder {
   }
 
   int _addInputUnsafe(Uint8List hash, int vout, Input options,
-      [String overridePrefix = '', bool isParticl = false]) {
+      [String overridePrefix = '']) {
     var txHash = HEX.encode(hash);
     Input input;
     // if (isCoinbaseHash(hash)) {
@@ -491,7 +489,7 @@ PaymentData? buildByType(
 }
 
 Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType? nw]) {
-  var network = nw ?? bitcoin;
+  var network = nw ?? particl;
   var p2pkh = P2PKH(data: PaymentData(pubkey: pubkey), network: network);
   return p2pkh.data.output!;
 }

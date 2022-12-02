@@ -22,7 +22,7 @@ class Address {
 
   static Uint8List addressToOutputScript(String address,
       [NetworkType? nw, String overridePrefix = '']) {
-    var network = nw ?? bitcoin;
+    var network = nw ?? particl;
     var decodeBase58;
     var decodeBech32;
     try {
