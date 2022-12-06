@@ -21,7 +21,7 @@ class TransactionBuilder {
   final Map _prevTxSet = {};
 
   TransactionBuilder({NetworkType? network, int? maximumFeeRate}) {
-    this.network = network ?? particl;
+    this.network = network ?? bitcoin;
     this.maximumFeeRate = maximumFeeRate ?? 2500;
     _inputs = [];
     _tx = Transaction();
@@ -131,13 +131,13 @@ class TransactionBuilder {
 
   dynamic sign(
       {required int vin,
-      required ECPair keyPair,
-      String? prevOutScriptType,
-      Uint8List? redeemScript,
-      int? witnessValue,
-      Uint8List? witnessScript,
-      int? hashType,
-      String overridePrefix = ''}) {
+        required ECPair keyPair,
+        String? prevOutScriptType,
+        Uint8List? redeemScript,
+        int? witnessValue,
+        Uint8List? witnessScript,
+        int? hashType,
+        String overridePrefix = ''}) {
     // TODO checkSignArgs
 
     if (keyPair.network != null &&
@@ -171,7 +171,7 @@ class TransactionBuilder {
       }
       if (redeemScript != null) {
         final p2sh =
-            P2SH(data: PaymentData(redeem: PaymentData(output: redeemScript)));
+        P2SH(data: PaymentData(redeem: PaymentData(output: redeemScript)));
         if (input.prevOutScript != null) {
           P2SH p2shAlt;
           try {
@@ -306,7 +306,7 @@ class TransactionBuilder {
           }
           continue;
         }
-
+        print("RESULT IS $result");
         tx.setInputScript(i, result.input!);
         tx.setWitness(i, result.witness);
       } else if (!allowIncomplete) {
@@ -428,7 +428,7 @@ class TransactionBuilder {
     if (input.prevOutScript == null && options.prevOutScript != null) {
       if (input.pubkeys == null && input.signatures == null) {
         var expanded =
-            Output.expandOutput(options.prevOutScript!, null, overridePrefix);
+        Output.expandOutput(options.prevOutScript!, null, overridePrefix);
         if (expanded.pubkeys != null && expanded.pubkeys!.isNotEmpty) {
           input.pubkeys = expanded.pubkeys;
           input.signatures = expanded.signatures;
@@ -456,19 +456,22 @@ PaymentData? buildByType(
     String type, Input input, bool allowIncomplete, NetworkType network,
     [String overridePrefix = '']) {
   if (type == SCRIPT_TYPES['P2PKH']) {
+    print("TYPE IS P2PKH");
     return P2PKH(
-            data: PaymentData(
-                pubkey: input.pubkeys![0], signature: input.signatures![0]),
-            network: network)
+        data: PaymentData(
+            pubkey: input.pubkeys![0], signature: input.signatures![0]),
+        network: network)
         .data;
   } else if (type == SCRIPT_TYPES['P2WPKH']) {
+    print("TYPE IS P2WPKH");
     return P2WPKH(
-            data: PaymentData(
-                pubkey: input.pubkeys![0], signature: input.signatures![0]),
-            network: network,
-            overridePrefix: overridePrefix)
+        data: PaymentData(
+            pubkey: input.pubkeys![0], signature: input.signatures![0]),
+        network: network,
+        overridePrefix: overridePrefix)
         .data;
   } else if (type == SCRIPT_TYPES['P2SH']) {
+    print("TYPE IS P2SH");
     final redeem = buildByType(input.redeemScriptType!, input, allowIncomplete,
         network, overridePrefix);
 
@@ -476,20 +479,20 @@ PaymentData? buildByType(
       return null;
     }
     return P2SH(
-            data: PaymentData(
-                redeem: PaymentData(
+        data: PaymentData(
+            redeem: PaymentData(
               output: redeem.output ?? input.redeemScript,
               input: redeem.input,
               witness: redeem.witness,
             )),
-            network: network)
+        network: network)
         .data;
   }
   return null;
 }
 
 Uint8List pubkeyToOutputScript(Uint8List pubkey, [NetworkType? nw]) {
-  var network = nw ?? particl;
+  var network = nw ?? bitcoin;
   var p2pkh = P2PKH(data: PaymentData(pubkey: pubkey), network: network);
   return p2pkh.data.output!;
 }

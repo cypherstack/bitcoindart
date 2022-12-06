@@ -16,7 +16,7 @@ class P2WPKH {
   late PaymentData data;
   late NetworkType network;
   P2WPKH({@required data, network, String overridePrefix = ''}) {
-    this.network = network ?? particl;
+    this.network = network ?? bitcoin;
     this.data = data;
     _init(overridePrefix);
   }
