@@ -295,12 +295,15 @@ class Transaction {
     return (weight() / 4).ceil();
   }
 
-  Uint8List toBuffer([Uint8List? buffer, int? initialOffset]) {
+  Uint8List toBuffer(bool isParticl, [Uint8List? buffer, int? initialOffset]) {
+    if (isParticl == true) {
+      return _toBufferParticl(buffer, initialOffset, true);
+    }
     return _toBuffer(buffer, initialOffset, true);
   }
 
-  String toHex() {
-    return HEX.encode(toBuffer());
+  String toHex({bool isParticl = false}) {
+    return HEX.encode(toBuffer(isParticl));
   }
 
   bool isCoinbaseHash(buffer) {
@@ -423,6 +426,110 @@ class Transaction {
     if (initialOffset != null) return buffer.sublist(initialOffset, offset);
 
     return buffer;
+  }
+
+  Uint8List _toBufferParticl(
+      [Uint8List? buffer, initialOffset, bool _ALLOW_WITNESS = false]) {
+
+    // _ALLOW_WITNESS is used to separate witness part when calculating tx id
+    buffer ??= Uint8List(_byteLength(_ALLOW_WITNESS));
+
+    // Any changes made to the ByteData will also change the buffer, and vice versa.
+    // https://api.dart.dev/stable/2.7.1/dart-typed_data/ByteBuffer/asByteData.html
+    var bytes = buffer.buffer.asByteData();
+    var offset = initialOffset ?? 0;
+
+    void writeSlice(slice) {
+      buffer?.setRange(offset, offset + slice.length, slice);
+      offset += slice.length;
+    }
+
+    void writeUInt8(i) {
+      bytes.setUint8(offset, i);
+      offset++;
+    }
+
+    void writeUInt32(i) {
+      bytes.setUint32(offset, i, Endian.little);
+      offset += 4;
+    }
+
+    void writeUInt16(i) {
+      bytes.setUint16(offset, i, Endian.little);
+      offset += 2;
+    }
+
+    void writeInt32(i) {
+      bytes.setInt32(offset, i, Endian.little);
+      offset += 4;
+    }
+
+    void writeInt16(i) {
+      bytes.setInt16(offset, i, Endian.little);
+      offset += 2;
+    }
+
+    void writeUInt64(i) {
+      bytes.setUint64(offset, i, Endian.little);
+      offset += 8;
+    }
+
+    void writeVarInt(i) {
+      varuint.encode(i, buffer, offset);
+      offset += varuint.encodingLength(i);
+    }
+
+    void writeVarSlice(slice) {
+      writeVarInt(slice.length);
+      writeSlice(slice);
+    }
+
+    void writeVector(vector) {
+      writeVarInt(vector.length);
+      vector.forEach((buf) {
+        writeVarSlice(buf);
+      });
+    }
+
+    writeInt32(version);
+    writeUInt16(locktime);
+
+    writeVarInt(ins.length);
+    ins.forEach((txIn) {
+      writeSlice(txIn.hash);
+      writeUInt32(txIn.index);
+      writeVarSlice(txIn.script);
+      writeUInt32(txIn.sequence);
+    });
+
+    writeVarInt(outs.length);
+    final outputType = 1;
+    outs.forEach((txOut) {
+      writeVarInt(outputType);
+      if (txOut.valueBuffer == null) {
+        writeUInt64(txOut.value);
+      } else {
+        writeSlice(txOut.valueBuffer);
+      }
+      writeVarSlice(txOut.script);
+    });
+
+    if (_ALLOW_WITNESS && hasWitnesses()) {
+      ins.forEach((txInt) {
+        writeVector(txInt.witness);
+      });
+    }
+
+    if (payload != null) {
+      writeVarSlice(payload!);
+    }
+    // End writeBuffer
+
+    // avoid slicing unless necessary
+    if (initialOffset != null) return buffer.sublist(initialOffset, offset);
+
+    return buffer;
+
   }
 
   factory Transaction.clone(Transaction _tx) {
