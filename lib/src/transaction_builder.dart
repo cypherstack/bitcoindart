@@ -307,7 +307,7 @@ class TransactionBuilder {
           continue;
         }
 
-        tx.setInputScript(i, result.input!);
+        // tx.setInputScript(i, result.input!);
         tx.setWitness(i, result.witness);
       } else if (!allowIncomplete) {
         throw ArgumentError('Transaction is not complete');
