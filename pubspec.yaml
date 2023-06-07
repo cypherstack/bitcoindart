@@ -10,9 +10,12 @@ dependencies:
   bech32:
     git:
       url: https://github.com/cypherstack/bech32.git
-      ref: ea645c864462ed4cee380c806718e0fc3d20bef1
+      ref: b6d2a5b4cd17311d917787c0f9505f04932659b1
   bip32: ^2.0.0
-  bip39: ^1.0.3
+  bip39:
+    git:
+      url: https://github.com/cypherstack/stack-bip39.git
+      ref: 0cd6d54e2860bea68fc50c801cb9db2a760192fb
   pointycastle: ^3.6.0
   hex: ^0.2.0
   bs58check: ^1.0.1
