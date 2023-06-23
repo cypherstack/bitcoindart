@@ -10,7 +10,7 @@ dependencies:
   bech32:
     git:
       url: https://github.com/cypherstack/bech32.git
-      ref: b6d2a5b4cd17311d917787c0f9505f04932659b1
+      ref: 6a3388ff8f62c1fa5e624bb7f36c8e71fe53428d
   bip32: ^2.0.0
   bip39:
     git:
