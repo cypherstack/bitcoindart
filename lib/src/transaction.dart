@@ -275,6 +275,37 @@ class Transaction {
             : 0)) as int;
   }
 
+  int _byteLengthParticl(bool _ALLOW_WITNESS) {
+    // Particl wire format header: version (2 bytes) + locktime (4 bytes) = 6.
+    // No SegWit marker/flag bytes.
+    // Each output has a varint type prefix.
+    // Witness is always present for Particl-versioned txns with inputs.
+    var hasWitness = _ALLOW_WITNESS && ins.isNotEmpty;
+
+    return (6 +
+        varuint.encodingLength(ins.length) +
+        varuint.encodingLength(outs.length) +
+        ins.fold(0, (sum, input) => sum + 40 + varSliceSize(input.script!)) +
+        outs.fold(
+            0,
+            (sum, output) =>
+                sum +
+                varuint.encodingLength(1) +
+                8 +
+                varSliceSize(output.script!)) +
+        (payload != null ? varSliceSize(payload!) : 0) +
+        (hasWitness
+            ? ins.fold(0, (sum, input) {
+                if (input.witness == null) {
+                  input.witness = [];
+                  return sum + varuint.encodingLength(0);
+                } else {
+                  return sum + vectorSize(input.witness!);
+                }
+              })
+            : 0)) as int;
+  }
+
   int vectorSize(List<Uint8List> someVector) {
     var length = someVector.length;
     return varuint.encodingLength(length) +
@@ -432,7 +463,7 @@ class Transaction {
       [Uint8List? buffer, initialOffset, bool _ALLOW_WITNESS = false]) {
 
     // _ALLOW_WITNESS is used to separate witness part when calculating tx id
-    buffer ??= Uint8List(_byteLength(_ALLOW_WITNESS));
+    buffer ??= Uint8List(_byteLengthParticl(_ALLOW_WITNESS));
 
     // Any changes made to the ByteData will also change the buffer, and vice versa.
     // https://api.dart.dev/stable/2.7.1/dart-typed_data/ByteBuffer/asByteData.html
@@ -452,21 +483,6 @@ class Transaction {
     void writeUInt32(i) {
       bytes.setUint32(offset, i, Endian.little);
       offset += 4;
-    }
-
-    void writeUInt16(i) {
-      bytes.setUint16(offset, i, Endian.little);
-      offset += 2;
-    }
-
-    void writeInt32(i) {
-      bytes.setInt32(offset, i, Endian.little);
-      offset += 4;
-    }
-
-    void writeInt16(i) {
-      bytes.setInt16(offset, i, Endian.little);
-      offset += 2;
     }
 
     void writeUInt64(i) {
@@ -491,8 +507,11 @@ class Transaction {
       });
     }
 
-    writeInt32(version);
-    writeUInt16(locktime);
+    // Particl header: 2-byte version + 4-byte locktime.
+    // Matches Particl Core: s << GetVersion(); s << GetType(); s << nLockTime;
+    writeUInt8(version & 0xFF);
+    writeUInt8((version >> 8) & 0xFF);
+    writeUInt32(locktime);
 
     writeVarInt(ins.length);
     ins.forEach((txIn) {
@@ -514,9 +533,10 @@ class Transaction {
       writeVarSlice(txOut.script);
     });
 
-    if (_ALLOW_WITNESS && hasWitnesses()) {
-      ins.forEach((txInt) {
-        writeVector(txInt.witness);
+    // Particl always includes witness for Particl-versioned txns with inputs.
+    if (_ALLOW_WITNESS && ins.isNotEmpty) {
+      ins.forEach((txIn) {
+        writeVector(txIn.witness ?? []);
       });
     }
 
