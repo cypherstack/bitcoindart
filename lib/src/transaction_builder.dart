@@ -137,6 +137,7 @@ class TransactionBuilder {
       int? witnessValue,
       Uint8List? witnessScript,
       int? hashType,
+      bool isParticl = false,
       String overridePrefix = ''}) {
     // TODO checkSignArgs
 
@@ -237,24 +238,32 @@ class TransactionBuilder {
                   .data
                   .output;
         } else if (type == SCRIPT_TYPES['P2PKH']) {
-          var prevOutScript = pubkeyToOutputScript(ourPubKey, network);
-          input.prevOutType = SCRIPT_TYPES['P2PKH'];
+          var p2pkhScript = pubkeyToOutputScript(ourPubKey, network);
+          // Particl requires all inputs to use witness format (empty scriptSig,
+          // sig+pubkey in witness), even for P2PKH prevouts. BIP143 is used
+          // for all Particl signing with the P2PKH script as the scriptCode.
+          input.prevOutType =
+              isParticl ? SCRIPT_TYPES['P2WPKH'] : SCRIPT_TYPES['P2PKH'];
+          if (isParticl) input.hasWitness = true;
           input.signatures = [null];
           input.pubkeys = [ourPubKey];
-          input.signScript = prevOutScript;
+          input.signScript = p2pkhScript;
         } else {
           // TODO other type
         }
       } else {
-        var prevOutScript = pubkeyToOutputScript(ourPubKey, network);
-        input.prevOutType = SCRIPT_TYPES['P2PKH'];
+        var p2pkhScript = pubkeyToOutputScript(ourPubKey, network);
+        input.prevOutType =
+            isParticl ? SCRIPT_TYPES['P2WPKH'] : SCRIPT_TYPES['P2PKH'];
+        if (isParticl) input.hasWitness = true;
         input.signatures = [null];
         input.pubkeys = [ourPubKey];
-        input.signScript = prevOutScript;
+        input.signScript = p2pkhScript;
       }
     }
     var signatureHash;
-    if (input.hasWitness != null && input.hasWitness!) {
+    // Particl always uses BIP143 sighash for all input types.
+    if (isParticl || (input.hasWitness != null && input.hasWitness!)) {
       signatureHash =
           _tx.hashForWitnessV0(vin, input.signScript!, input.value!, hashType);
     } else {
